@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WKX · Option 2 · Harbour Watch</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230A141E'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%233DDC97'/%3E%3C/svg%3E">
+<title>WKX · Option 4 · Searchlight</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230A141E'/%3E%3Cpolygon points='2 2 14 6 14 10 2 14' fill='%23FFE9A3'/%3E%3C/svg%3E">
 <style>
   :root {
     --deep: #0A141E;       /* harbour at night */
@@ -17,6 +17,7 @@
     --port: #FF6257;       /* fault, act now */
     --anchor: #F5B84A;     /* holding, attend soon */
     --masthead: #FFFFFF;
+    --beam: #FFE9A3;       /* searchlight, carried over from Namespace */
     --sans: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --sans-cond: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", sans-serif;
     --mono: ui-monospace, "Menlo", "SF Mono", monospace;
@@ -32,6 +33,25 @@
   .page { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
   a { color: var(--starboard); }
   :focus-visible { outline: 2px solid var(--anchor); outline-offset: 2px; }
+
+  /* ---------- the searchlight ---------- */
+  .slot {
+    border-bottom: 1px dotted var(--fog);
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .slot.match {
+    background: var(--beam);
+    color: var(--deep);
+    border-bottom-color: transparent;
+    box-shadow: 0 0 10px rgba(255, 233, 163, .35);
+  }
+  .slot.pinned { outline: 1.5px solid var(--beam); outline-offset: 1px; }
+  .hint {
+    display: inline-block; margin-top: 1.1rem;
+    font-size: .8rem; padding: .4rem .8rem;
+    background: var(--beam); color: var(--deep); border-radius: 4px;
+  }
 
   /* ---------- signage ---------- */
   .signage {
@@ -62,7 +82,8 @@
   h1 .dim { color: var(--fog); font-weight: 500; }
   .watch-time { font-family: var(--mono); font-size: .8rem; color: var(--fog); text-align: right; }
   .watch-time b { color: var(--text); font-weight: 400; }
-  .thesis { color: var(--fog); max-width: 42rem; margin-top: .5rem; font-size: .95rem; }
+  .thesis { color: var(--fog); max-width: 44rem; margin-top: .5rem; font-size: .95rem; }
+  .thesis b { color: var(--text); font-weight: 600; }
 
   /* ---------- legend ---------- */
   .legend {
@@ -213,7 +234,7 @@
   .btn-danger { background: transparent; border-color: var(--port); color: var(--port); }
   .btn-danger:hover { background: rgba(255,98,87,.1); }
   .field { display: inline-flex; flex-direction: column; gap: .3rem; }
-  .field label { font-family: var(--sans-cond); font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--fog); }
+  .field label { font-family: var(--mono); font-size: .7rem; color: var(--fog); }
   .field input {
     font-family: var(--mono); font-size: .82rem;
     padding: .5rem .7rem; border: 1px solid var(--line); border-radius: 4px;
@@ -260,16 +281,19 @@
 <div class="page">
 
   <nav class="opt-nav" aria-label="Design options">
-    <span>Option 2 of 4 · Harbour Watch</span>
-    <span><a href="index.html">All options</a> · next: <a href="03-namespace.html">Namespace</a></span>
+    <span>Option 4 of 4 · Searchlight</span>
+    <span><a href="index.html">All options</a> · next: <a href="01-red-ledger.html">Red Ledger</a></span>
   </nav>
 
   <header>
     <div class="head-row">
-      <h1>WKX <span class="dim">Harbour Watch</span></h1>
+      <h1>WKX <span class="dim">Searchlight</span></h1>
       <p class="watch-time"><b>Fri 18 Jul 2026 · 15:04 NZST</b><br>afternoon watch · seas slight</p>
     </div>
-    <p class="thesis">Two berths, one watchkeeper. Every service shows a navigation light; the light tells you whether to act, the board tells you why.</p>
+    <p class="thesis">Harbour Watch's night console carrying Namespace's interaction:
+      every token of the <b>ubiquitous language</b> is a surface the searchlight can find,
+      wherever it appears on the board.</p>
+    <span class="hint">Searchlight: hover or focus any dotted token to find its every appearance. Click to hold the light, Esc to douse it.</span>
 
     <div class="legend" role="note" aria-label="Signal legend">
       <span class="item"><span class="light" aria-hidden="true"></span><span><b>Starboard</b> · underway, all well</span></span>
@@ -288,29 +312,30 @@
       </div>
       <div class="vessel">
         <span class="light" aria-label="starboard"></span>
-        <span class="name">caddy-prod<small>wkx-caddy:2.10.0-cf · wildcard TLS · edge network</small></span>
+        <span class="name"><span class="slot" data-slot="caddy" tabindex="0">caddy</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-caddy:2.10.0-cf · wildcard TLS · edge network</small></span>
         <span class="stat">up 4 h 38 m</span>
       </div>
       <div class="vessel">
         <span class="light" aria-label="starboard"></span>
-        <span class="name">hello-prod<small>wkx-hello:e7d09b4 · hello.wingkongexchange.dev</small></span>
+        <span class="name"><span class="slot" data-slot="hello" tabindex="0">hello</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-hello:e7d09b4 · hello.wingkongexchange.dev</small></span>
         <span class="stat">up 32 m</span>
       </div>
       <div class="vessel">
         <span class="light unlit" aria-label="unlit"></span>
-        <span class="name">backup-prod<small>restic to S3, nightly · arrives M10</small></span>
+        <span class="name"><span class="slot" data-slot="backup" tabindex="0">backup</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>restic to S3, nightly · arrives M10</small></span>
         <span class="stat">·</span>
       </div>
     </div>
     <div class="berth">
       <div class="berth-head">
-        <span class="signage">Home berth</span>
+        <span class="signage"><span class="slot" data-slot="home" tabindex="0">Home</span>&nbsp;berth</span>
         <span class="where">LAN only · Ubuntu x86</span>
       </div>
       <div class="berth-empty">
         <span class="light unlit" aria-label="unlit"></span>
         <span><b>Berth prepared, no arrivals yet.</b>
-        The on-prem mirror docks at M9: same Compose stack, Caddy on the LAN IP, no CloudWatch. Bootstrap script is ready to run.</span>
+        The on-prem mirror docks at M9: the same Compose stack with env=<span class="slot" data-slot="home" tabindex="0">home</span>,
+        <span class="slot" data-slot="caddy" tabindex="0">Caddy</span> on the LAN IP, no CloudWatch. Bootstrap script is ready to run.</span>
       </div>
     </div>
   </section>
@@ -388,28 +413,28 @@
         <tbody>
           <tr>
             <td class="dim">18 Jul 14:32</td>
-            <td>hello · prod</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
             <td>e7d09b4</td>
             <td class="ok">DEPLOYED</td>
             <td class="dim">render, pull, up, reload · 1 m 48 s</td>
           </tr>
           <tr>
             <td class="dim">18 Jul 10:41</td>
-            <td>platform · prod</td>
-            <td>caddy 2.10.0-cf</td>
+            <td>platform · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
+            <td><span class="slot" data-slot="caddy" tabindex="0">caddy</span> 2.10.0-cf</td>
             <td class="ok">DEPLOYED</td>
             <td class="dim">re-berthed after Host replacement</td>
           </tr>
           <tr>
             <td class="dim">17 Jul 19:08</td>
-            <td>hello · prod</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
             <td>9c21f77 → a3f91c2</td>
             <td class="back">ROLLED BACK</td>
             <td class="dim">git revert · under two minutes</td>
           </tr>
           <tr>
             <td class="dim">16 Jul 21:12</td>
-            <td>hello · prod</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
             <td>9c21f77</td>
             <td class="ok">DEPLOYED</td>
             <td class="dim">reverted the next evening</td>
@@ -420,7 +445,7 @@
     </div>
 
     <div class="panel panel-wide">
-      <p class="signage">Signal log · caddy access · hello.wingkongexchange.dev</p>
+      <p class="signage">Signal log · <span class="slot" data-slot="caddy" tabindex="0">caddy</span> access · <span class="slot" data-slot="hello" tabindex="0">hello</span>.wingkongexchange.dev</p>
       <div class="log" id="log" aria-live="off"></div>
       <div class="log-foot">
         <span id="log-state">receiving</span>
@@ -436,7 +461,7 @@
         <button class="btn">Roll back to a3f91c2</button>
         <button class="btn btn-danger">Tear down pr-4</button>
         <span class="field">
-          <label for="param-1">Parameter value</label>
+          <label for="param-1">/wkx/<span class="slot" data-slot="hello" tabindex="0">hello</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span>/<span class="slot" data-slot="MESSAGE" tabindex="0">MESSAGE</span></label>
           <input id="param-1" type="text" value="hello world">
         </span>
       </div>
@@ -451,19 +476,20 @@
         <div class="swatch"><div class="chip" style="background:#3DDC97"></div><div class="meta"><b>starboard</b>#3DDC97</div></div>
         <div class="swatch"><div class="chip" style="background:#F5B84A"></div><div class="meta"><b>anchor</b>#F5B84A</div></div>
         <div class="swatch"><div class="chip" style="background:#FF6257"></div><div class="meta"><b>port</b>#FF6257</div></div>
+        <div class="swatch"><div class="chip" style="background:#FFE9A3"></div><div class="meta"><b>beam</b>#FFE9A3 · searchlight</div></div>
       </div>
       <div class="type-spec">
         <div class="type-row">
           <span class="role">Display · Avenir Next Condensed</span>
-          <span class="spec-display">Two berths, one watchkeeper</span>
+          <span class="spec-display">The light finds every mention</span>
         </div>
         <div class="type-row">
           <span class="role">Body · Avenir Next</span>
-          <span class="spec-body">The light tells you whether to act; the board tells you why. Signals are earned from thresholds, never decoration.</span>
+          <span class="spec-body">The light tells you whether to act; the beam tells you where else to look. Signals are earned from thresholds, never decoration.</span>
         </div>
         <div class="type-row">
           <span class="role">Data · Menlo</span>
-          <span class="spec-mono">docker compose -p hello-prod up -d · /wkx/hello/prod/MESSAGE</span>
+          <span class="spec-mono">docker compose -p <span class="slot" data-slot="hello" tabindex="0">hello</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span> up -d</span>
         </div>
       </div>
     </div>
@@ -471,7 +497,7 @@
 
   <nav class="opt-nav" aria-label="Design options">
     <span><a href="index.html">All options</a></span>
-    <span>next: <a href="03-namespace.html">Namespace</a></span>
+    <span>next: <a href="01-red-ledger.html">Red Ledger</a></span>
   </nav>
 </div>
 
@@ -526,6 +552,41 @@
     held = !held;
     toggle.textContent = held ? 'Resume' : 'Hold';
     state.textContent = held ? 'held' : 'receiving';
+  });
+
+  // The searchlight, carried over from Namespace: hover, focus, or pin a token
+  // to light up every occurrence of that word across the board.
+  let pinnedValue = null;
+
+  function setMatch(value, on) {
+    document.querySelectorAll('[data-slot="' + value + '"]').forEach(el => {
+      el.classList.toggle('match', on || el.dataset.slot === pinnedValue);
+    });
+  }
+  function setPinned(value) {
+    document.querySelectorAll('.slot').forEach(el => {
+      el.classList.toggle('pinned', value !== null && el.dataset.slot === value);
+      el.classList.toggle('match', value !== null && el.dataset.slot === value);
+    });
+    pinnedValue = value;
+  }
+
+  document.querySelectorAll('.slot').forEach(el => {
+    const v = el.dataset.slot;
+    el.addEventListener('mouseenter', () => setMatch(v, true));
+    el.addEventListener('mouseleave', () => setMatch(v, false));
+    el.addEventListener('focus', () => setMatch(v, true));
+    el.addEventListener('blur', () => setMatch(v, false));
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      setPinned(pinnedValue === v ? null : v);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPinned(pinnedValue === v ? null : v); }
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') setPinned(null);
   });
 </script>
 </body>

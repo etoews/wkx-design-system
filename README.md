@@ -1,6 +1,6 @@
 # WKX Design System
 
-Three design system options for the operational user interfaces of
+Four design system options for the operational user interfaces of
 [wkx-platform](../wkx-platform/), a personal Docker Compose platform running in
 two homes: AWS (public-facing) and an on-prem home server (LAN-only).
 
@@ -16,6 +16,7 @@ home env and M10 backups shown as honest empty states.
 | 1 · Red Ledger | [01-red-ledger.html](01-red-ledger.html) | Wing Kong Exchange is a trading house, so the platform keeps a vermilion-ruled trading ledger. Jade chop stamps for state, the budget settled like a monthly book. Light, serif, narrative. |
 | 2 · Harbour Watch | [02-harbour-watch.html](02-harbour-watch.html) | Two berths watched at night. Status is a navigation light with documented meaning: starboard green underway, anchor amber holding, port red fault. Dark, dense, signal-driven. |
 | 3 · Namespace | [03-namespace.html](03-namespace.html) | The platform's path grammar as the interface. Every panel addressed by `/wkx/<service>/<env>`, Terraform plan symbols for state, hover-to-highlight on every token of the ubiquitous language. Light, monospace, interactive. |
+| 4 · Searchlight | [04-searchlight.html](04-searchlight.html) | Harbour Watch's night console carrying Namespace's interaction. Hover any token of the ubiquitous language and the searchlight finds its every appearance; click to hold the light, Esc to douse it. |
 
 ## Viewing
 
