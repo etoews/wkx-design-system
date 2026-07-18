@@ -22,9 +22,9 @@
     --line: #21374C;
     --text: #E8F0F6;
     --fog: #8AA3B5;
-    --add: #3DDC97;        /* + standing, all well */
-    --del: #FF6257;        /* - fault, act now */
-    --chg: #F5B84A;        /* ~ changing, attend soon */
+    --add: #3DDC97;        /* + up, all well */
+    --del: #FF6257;        /* - down, act now */
+    --chg: #F5B84A;        /* ~ stabilising, attend if it lingers */
     --masthead: #FFFFFF;
     --match: #FFE9A3;      /* token highlight */
     --on-match: #0A141E;   /* text on the highlight */
@@ -401,9 +401,9 @@
     <span class="hint">Hover or focus any dotted token to light up its every appearance. Click to pin, Esc to release.</span>
 
     <div class="legend" role="note" aria-label="Status legend">
-      <span class="item"><span class="light" aria-hidden="true"></span><span><span class="sym add">+</span> · <b>standing</b>, all well</span></span>
-      <span class="item"><span class="light chg" aria-hidden="true"></span><span><span class="sym chg">~</span> · <b>changing</b>, attend soon</span></span>
-      <span class="item"><span class="light del" aria-hidden="true"></span><span><span class="sym del">−</span> · <b>fault</b>, act now</span></span>
+      <span class="item"><span class="light" aria-hidden="true"></span><span><span class="sym add">+</span> · <b>up</b>, all well</span></span>
+      <span class="item"><span class="light chg" aria-hidden="true"></span><span><span class="sym chg">~</span> · <b>stabilising</b>, attend if it lingers</span></span>
+      <span class="item"><span class="light del" aria-hidden="true"></span><span><span class="sym del">−</span> · <b>down</b>, act now</span></span>
       <span class="item"><span class="light unlit" aria-hidden="true"></span><span><b>unlit</b> · not yet deployed</span></span>
     </div>
   </header>
@@ -416,12 +416,12 @@
         <span class="where">Cloud Host · ap-southeast-2 · Sydney</span>
       </div>
       <div class="service">
-        <span class="light" aria-label="standing"></span>
+        <span class="light" aria-label="up"></span>
         <span class="name"><span class="slot" data-slot="caddy" tabindex="0">caddy</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-caddy:2.10.0-cf · wildcard TLS · edge network</small></span>
         <span class="stat">up 4 h 38 m</span>
       </div>
       <div class="service">
-        <span class="light" aria-label="standing"></span>
+        <span class="light" aria-label="up"></span>
         <span class="name"><span class="slot" data-slot="hello" tabindex="0">hello</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-hello:e7d09b4 · hello.wingkongexchange.dev</small></span>
         <span class="stat">up 32 m</span>
       </div>
@@ -481,10 +481,10 @@
     <div class="panel panel-alarms">
       <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="platform" tabindex="0">platform</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · alarms</p>
       <div class="alarm-row">
-        <span class="light chg" aria-label="changing"></span>
+        <span class="light chg" aria-label="stabilising"></span>
         <div>
           <p class="alarm-name">wkx-host-cpu-credits</p>
-          <p class="alarm-note"><b>CloudWatch state: ALARM. Plan symbol: <span class="sym chg">~</span> changing.</b>
+          <p class="alarm-note"><b>CloudWatch state: ALARM. Status: <span class="sym chg">~</span> stabilising.</b>
           Credit bank refills after this morning's Host replacement; self-resolves in five to six hours. No action owed.</p>
           <p class="alarm-meta">since 10:52 · 4 h 12 m · threshold 150</p>
         </div>
@@ -578,9 +578,9 @@
         <div class="swatch"><div class="chip" style="background:var(--deep); border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>night #0A141E · day #EEF3F6</div></div>
         <div class="swatch"><div class="chip" style="background:var(--water); border-bottom:1px solid var(--line)"></div><div class="meta"><b>water</b>night #0E1C2A · day #FFFFFF</div></div>
         <div class="swatch"><div class="chip" style="background:var(--text)"></div><div class="meta"><b>text</b>night #E8F0F6 · day #182634</div></div>
-        <div class="swatch"><div class="chip" style="background:var(--add)"></div><div class="meta"><b>add</b>night #3DDC97 · day #0F8A5F · + standing</div></div>
-        <div class="swatch"><div class="chip" style="background:var(--chg)"></div><div class="meta"><b>chg</b>night #F5B84A · day #A06E00 · ~ changing</div></div>
-        <div class="swatch"><div class="chip" style="background:var(--del)"></div><div class="meta"><b>del</b>night #FF6257 · day #C3362B · − fault</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--add)"></div><div class="meta"><b>add</b>night #3DDC97 · day #0F8A5F · + up</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--chg)"></div><div class="meta"><b>chg</b>night #F5B84A · day #A06E00 · ~ stabilising</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--del)"></div><div class="meta"><b>del</b>night #FF6257 · day #C3362B · − down</div></div>
         <div class="swatch"><div class="chip" style="background:var(--match)"></div><div class="meta"><b>match</b>#FFE9A3 both · token highlight</div></div>
       </div>
       <div class="type-spec">
