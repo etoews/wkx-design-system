@@ -5,8 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WKX · Option 4 · Namespace</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230A141E'/%3E%3Cpath d='M10 2 L6 14' stroke='%23FFE9A3' stroke-width='2'/%3E%3C/svg%3E">
+<script>
+  // Apply a saved theme override before first paint; without one, the
+  // system setting decides via prefers-color-scheme.
+  (function () {
+    const saved = localStorage.getItem('wkx-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+  })();
+</script>
 <style>
   :root {
+    /* night, the identity default */
     --deep: #0A141E;       /* page, near-navy night */
     --water: #0E1C2A;      /* panels */
     --hull: #14273A;       /* raised panels */
@@ -18,9 +27,75 @@
     --chg: #F5B84A;        /* ~ changing, attend soon */
     --masthead: #FFFFFF;
     --match: #FFE9A3;      /* token highlight */
+    --on-match: #0A141E;   /* text on the highlight */
+    --on-accent: #0A141E;  /* text on filled accent buttons */
+    --add-hover: #58E5A8;
+    --del-tint: rgba(255, 98, 87, .1);
+    --glow-add: rgba(61, 220, 151, .55);
+    --glow-add-lo: rgba(61, 220, 151, .4);
+    --glow-add-hi: rgba(61, 220, 151, .65);
+    --glow-del: rgba(255, 98, 87, .55);
+    --glow-chg: rgba(245, 184, 74, .5);
+    --glow-chg-lo: rgba(245, 184, 74, .35);
+    --glow-chg-hi: rgba(245, 184, 74, .6);
+    --match-glow: rgba(255, 233, 163, .35);
     --sans: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --sans-cond: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", sans-serif;
     --mono: ui-monospace, "Menlo", "SF Mono", monospace;
+  }
+  /* day: applied when the system prefers light and no dark override is set,
+     or when the operator explicitly picks light */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --deep: #EEF3F6;
+      --water: #FFFFFF;
+      --hull: #DFE8EE;
+      --line: #C6D3DC;
+      --text: #182634;
+      --fog: #5B7284;
+      --add: #0F8A5F;
+      --del: #C3362B;
+      --chg: #A06E00;
+      --masthead: #0A141E;
+      --match: #FFE9A3;
+      --on-match: #182634;
+      --on-accent: #F5FAF8;
+      --add-hover: #0C7A54;
+      --del-tint: rgba(195, 54, 43, .08);
+      --glow-add: rgba(15, 138, 95, .35);
+      --glow-add-lo: rgba(15, 138, 95, .25);
+      --glow-add-hi: rgba(15, 138, 95, .45);
+      --glow-del: rgba(195, 54, 43, .35);
+      --glow-chg: rgba(160, 110, 0, .35);
+      --glow-chg-lo: rgba(160, 110, 0, .25);
+      --glow-chg-hi: rgba(160, 110, 0, .45);
+      --match-glow: rgba(160, 110, 0, .25);
+    }
+  }
+  :root[data-theme="light"] {
+    --deep: #EEF3F6;
+    --water: #FFFFFF;
+    --hull: #DFE8EE;
+    --line: #C6D3DC;
+    --text: #182634;
+    --fog: #5B7284;
+    --add: #0F8A5F;
+    --del: #C3362B;
+    --chg: #A06E00;
+    --masthead: #0A141E;
+    --match: #FFE9A3;
+    --on-match: #182634;
+    --on-accent: #F5FAF8;
+    --add-hover: #0C7A54;
+    --del-tint: rgba(195, 54, 43, .08);
+    --glow-add: rgba(15, 138, 95, .35);
+    --glow-add-lo: rgba(15, 138, 95, .25);
+    --glow-add-hi: rgba(15, 138, 95, .45);
+    --glow-del: rgba(195, 54, 43, .35);
+    --glow-chg: rgba(160, 110, 0, .35);
+    --glow-chg-lo: rgba(160, 110, 0, .25);
+    --glow-chg-hi: rgba(160, 110, 0, .45);
+    --match-glow: rgba(160, 110, 0, .25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -42,15 +117,15 @@
   }
   .slot.match {
     background: var(--match);
-    color: var(--deep);
+    color: var(--on-match);
     border-bottom-color: transparent;
-    box-shadow: 0 0 10px rgba(255, 233, 163, .35);
+    box-shadow: 0 0 10px var(--match-glow);
   }
   .slot.pinned { outline: 1.5px solid var(--match); outline-offset: 1px; }
   .hint {
     display: inline-block; margin-top: 1.1rem;
     font-size: .8rem; padding: .4rem .8rem;
-    background: var(--match); color: var(--deep); border-radius: 4px;
+    background: var(--match); color: var(--on-match); border-radius: 4px;
   }
 
   /* ---------- section heads ---------- */
@@ -112,23 +187,23 @@
     width: 11px; height: 11px; border-radius: 50%;
     display: inline-block; flex: none;
     background: var(--add);
-    box-shadow: 0 0 10px 2px rgba(61,220,151,.55);
+    box-shadow: 0 0 10px 2px var(--glow-add);
     animation: breathe 3.2s ease-in-out infinite;
   }
-  .light.del { background: var(--del); box-shadow: 0 0 10px 2px rgba(255,98,87,.55); }
-  .light.chg { background: var(--chg); box-shadow: 0 0 10px 2px rgba(245,184,74,.5); }
+  .light.del { background: var(--del); box-shadow: 0 0 10px 2px var(--glow-del); }
+  .light.chg { background: var(--chg); box-shadow: 0 0 10px 2px var(--glow-chg); }
   .light.unlit {
     background: transparent; border: 1.5px solid var(--fog);
     box-shadow: none; animation: none; opacity: .6;
   }
   @keyframes breathe {
-    0%, 100% { box-shadow: 0 0 8px 1px rgba(61,220,151,.4); }
-    50% { box-shadow: 0 0 13px 3px rgba(61,220,151,.65); }
+    0%, 100% { box-shadow: 0 0 8px 1px var(--glow-add-lo); }
+    50% { box-shadow: 0 0 13px 3px var(--glow-add-hi); }
   }
   .light.chg { animation-name: breathe-c; }
   @keyframes breathe-c {
-    0%, 100% { box-shadow: 0 0 8px 1px rgba(245,184,74,.35); }
-    50% { box-shadow: 0 0 13px 3px rgba(245,184,74,.6); }
+    0%, 100% { box-shadow: 0 0 8px 1px var(--glow-chg-lo); }
+    50% { box-shadow: 0 0 13px 3px var(--glow-chg-hi); }
   }
   @media (prefers-reduced-motion: reduce) { .light { animation: none !important; } }
 
@@ -237,10 +312,10 @@
     cursor: pointer;
   }
   .btn:hover { border-color: var(--fog); }
-  .btn-primary { background: var(--add); border-color: var(--add); color: var(--deep); }
-  .btn-primary:hover { background: #58E5A8; }
+  .btn-primary { background: var(--add); border-color: var(--add); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--add-hover); }
   .btn-danger { background: transparent; border-color: var(--del); color: var(--del); }
-  .btn-danger:hover { background: rgba(255,98,87,.1); }
+  .btn-danger:hover { background: var(--del-tint); }
   .field { display: inline-flex; flex-direction: column; gap: .3rem; }
   .field label { font-family: var(--mono); font-size: .7rem; color: var(--fog); }
   .field input {
@@ -277,6 +352,14 @@
     font-family: var(--mono); font-size: .74rem;
     padding: 1rem 0; color: var(--fog);
   }
+  .theme-btn {
+    font-family: var(--mono); font-size: .72rem;
+    padding: .2rem .7rem; border-radius: 4px;
+    border: 1px solid var(--line);
+    background: transparent; color: var(--fog);
+    cursor: pointer;
+  }
+  .theme-btn:hover { border-color: var(--fog); color: var(--text); }
 
   @media (max-width: 860px) {
     .envs, .console { grid-template-columns: 1fr; }
@@ -290,7 +373,7 @@
 
   <nav class="opt-nav" aria-label="Design options">
     <span>Option 4 of 4 · Namespace</span>
-    <span><a href="index.html">All options</a> · next: <a href="01-red-ledger.html">Red Ledger</a></span>
+    <span>theme: <button class="theme-btn" id="theme-toggle" aria-label="Theme, cycles auto, light, dark">auto</button> · <a href="index.html">All options</a> · next: <a href="01-red-ledger.html">Red Ledger</a></span>
   </nav>
 
   <header>
@@ -298,7 +381,7 @@
       <h1>WKX <span class="dim">Namespace</span></h1>
       <p class="head-time"><b>Fri 18 Jul 2026 · 15:04 NZST</b><br>every namespace on one page</p>
     </div>
-    <p class="thesis">The namespace is the interface, read at night. Every panel is addressed by its path,
+    <p class="thesis">The namespace is the interface, by night or by day. Every panel is addressed by its path,
       statuses borrow Terraform's plan symbols, and any token of the <b>ubiquitous language</b>
       lights up wherever else it appears.</p>
     <span class="hint">Hover or focus any dotted token to light up its every appearance. Click to pin, Esc to release.</span>
@@ -478,13 +561,13 @@
     <div class="panel panel-wide">
       <p class="signage"><span class="path">/wkx/design/tokens</span> · recorded in the same shape as everything else</p>
       <div class="swatches">
-        <div class="swatch"><div class="chip" style="background:#0A141E; border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>#0A141E</div></div>
-        <div class="swatch"><div class="chip" style="background:#0E1C2A"></div><div class="meta"><b>water</b>#0E1C2A</div></div>
-        <div class="swatch"><div class="chip" style="background:#E8F0F6"></div><div class="meta"><b>text</b>#E8F0F6</div></div>
-        <div class="swatch"><div class="chip" style="background:#3DDC97"></div><div class="meta"><b>add</b>#3DDC97 · + standing</div></div>
-        <div class="swatch"><div class="chip" style="background:#F5B84A"></div><div class="meta"><b>chg</b>#F5B84A · ~ changing</div></div>
-        <div class="swatch"><div class="chip" style="background:#FF6257"></div><div class="meta"><b>del</b>#FF6257 · − fault</div></div>
-        <div class="swatch"><div class="chip" style="background:#FFE9A3"></div><div class="meta"><b>match</b>#FFE9A3 · token highlight</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--deep); border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>night #0A141E · day #EEF3F6</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--water); border-bottom:1px solid var(--line)"></div><div class="meta"><b>water</b>night #0E1C2A · day #FFFFFF</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--text)"></div><div class="meta"><b>text</b>night #E8F0F6 · day #182634</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--add)"></div><div class="meta"><b>add</b>night #3DDC97 · day #0F8A5F · + standing</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--chg)"></div><div class="meta"><b>chg</b>night #F5B84A · day #A06E00 · ~ changing</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--del)"></div><div class="meta"><b>del</b>night #FF6257 · day #C3362B · − fault</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--match)"></div><div class="meta"><b>match</b>#FFE9A3 both · token highlight</div></div>
       </div>
       <div class="type-spec">
         <div class="type-row">
@@ -595,6 +678,26 @@
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') setPinned(null);
+  });
+
+  // Theme: auto follows the system setting; light and dark override it.
+  // The override persists and is applied before first paint by the head script.
+  const themeBtn = document.getElementById('theme-toggle');
+  const themes = ['auto', 'light', 'dark'];
+  let theme = localStorage.getItem('wkx-theme');
+  if (!themes.includes(theme)) theme = 'auto';
+  themeBtn.textContent = theme;
+
+  themeBtn.addEventListener('click', () => {
+    theme = themes[(themes.indexOf(theme) + 1) % themes.length];
+    if (theme === 'auto') {
+      delete document.documentElement.dataset.theme;
+      localStorage.removeItem('wkx-theme');
+    } else {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('wkx-theme', theme);
+    }
+    themeBtn.textContent = theme;
   });
 </script>
 </body>
