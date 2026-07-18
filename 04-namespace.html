@@ -105,7 +105,8 @@
     font-size: 15px;
     line-height: 1.5;
   }
-  .page { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
+  /* Fluid width: the workbench takes the whole screen; prose stays capped inside panels. */
+  .page { margin: 0 auto; padding: 0 clamp(1.5rem, 2.5vw, 4rem) 5rem; }
   a { color: var(--add); }
   :focus-visible { outline: 2px solid var(--chg); outline-offset: 2px; }
 
@@ -235,6 +236,7 @@
   }
   .env-empty .light { margin-top: .3rem; }
   .env-empty b { color: var(--text); font-weight: 600; display: block; }
+  .env-empty span:last-child { max-width: 36rem; }
 
   /* ---------- console grid ---------- */
   .console { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.4rem; }
@@ -246,6 +248,18 @@
   }
   .panel .signage { margin-bottom: 1rem; }
   .panel-wide { grid-column: 1 / -1; }
+
+  /* Wider screens: more panels share a row rather than stretching. */
+  @media (min-width: 1500px) {
+    .console { grid-template-columns: repeat(6, 1fr); }
+    .console .panel { grid-column: span 3; }
+    .console .panel-wide { grid-column: 1 / -1; }
+    .console .panel-deploys, .console .panel-log { grid-column: span 3; }
+  }
+  @media (min-width: 2100px) {
+    .console { grid-auto-flow: dense; }
+    .console .panel-alarms, .console .panel-budget, .console .panel-instruments { grid-column: span 2; }
+  }
 
   /* vitals */
   .gauges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.3rem; }
@@ -434,7 +448,7 @@
   <!-- console -->
   <section class="console" aria-label="Console">
 
-    <div class="panel panel-wide">
+    <div class="panel panel-wide panel-vitals">
       <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="platform" tabindex="0">platform</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · vitals · t4g.medium · replaced 10:26</p>
       <div class="gauges">
         <div class="gauge">
@@ -464,7 +478,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel panel-alarms">
       <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="platform" tabindex="0">platform</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · alarms</p>
       <div class="alarm-row">
         <span class="light chg" aria-label="changing"></span>
@@ -481,7 +495,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel panel-budget">
       <p class="signage"><span class="path">wkx-org-monthly</span> · no env slot · NZD cap 50</p>
       <div class="budget-head">
         <span class="budget-big">27.65<small> NZD month to date</small></span>
@@ -494,7 +508,7 @@
       <div class="budget-line"><span>Cloudflare, free tier</span><b>0.00</b></div>
     </div>
 
-    <div class="panel panel-wide">
+    <div class="panel panel-wide panel-deploys">
       <p class="signage"><span class="path">/wkx/*/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · deploys</p>
       <div class="tbl-wrap">
       <table class="deploys">
@@ -535,7 +549,7 @@
       </div>
     </div>
 
-    <div class="panel panel-wide">
+    <div class="panel panel-wide panel-log">
       <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="caddy" tabindex="0">caddy</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · access log · <span class="path"><span class="slot" data-slot="hello" tabindex="0">hello</span>.wingkongexchange.dev</span></p>
       <div class="log" id="log" aria-live="off"></div>
       <div class="log-foot">
@@ -544,7 +558,7 @@
       </div>
     </div>
 
-    <div class="panel panel-wide">
+    <div class="panel panel-wide panel-instruments">
       <p class="signage">Instruments</p>
       <div class="instruments">
         <button class="btn btn-primary">Deploy e7d09b4</button>
@@ -558,7 +572,7 @@
       </div>
     </div>
 
-    <div class="panel panel-wide">
+    <div class="panel panel-wide panel-tokens">
       <p class="signage"><span class="path">/wkx/design/tokens</span> · recorded in the same shape as everything else</p>
       <div class="swatches">
         <div class="swatch"><div class="chip" style="background:var(--deep); border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>night #0A141E · day #EEF3F6</div></div>
