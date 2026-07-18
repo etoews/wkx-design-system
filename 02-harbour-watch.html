@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WKX · Option 2 · Harbour Watch</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230A141E'/%3E%3Ccircle cx='8' cy='8' r='4' fill='%233DDC97'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --deep: #0A141E;       /* harbour at night */
+    --water: #0E1C2A;      /* panels */
+    --hull: #14273A;       /* raised panels */
+    --line: #21374C;
+    --text: #E8F0F6;
+    --fog: #8AA3B5;
+    --starboard: #3DDC97;  /* underway, all well */
+    --port: #FF6257;       /* fault, act now */
+    --anchor: #F5B84A;     /* holding, attend soon */
+    --masthead: #FFFFFF;
+    --sans: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --sans-cond: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", sans-serif;
+    --mono: ui-monospace, "Menlo", "SF Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .page { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
+  a { color: var(--starboard); }
+  :focus-visible { outline: 2px solid var(--anchor); outline-offset: 2px; }
+
+  /* ---------- signage ---------- */
+  .signage {
+    font-family: var(--sans-cond);
+    font-weight: 600;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--fog);
+    font-size: .72rem;
+    display: flex; align-items: center; gap: .9rem;
+  }
+  .signage::before, .signage::after {
+    content: ""; height: 1px; background: var(--line); flex: 1;
+  }
+  .signage::before { max-width: 1.6rem; flex: none; width: 1.6rem; }
+
+  /* ---------- header ---------- */
+  header { padding: 2.4rem 0 1.6rem; }
+  .head-row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+  h1 {
+    font-family: var(--sans-cond);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--masthead);
+  }
+  h1 .dim { color: var(--fog); font-weight: 500; }
+  .watch-time { font-family: var(--mono); font-size: .8rem; color: var(--fog); text-align: right; }
+  .watch-time b { color: var(--text); font-weight: 400; }
+  .thesis { color: var(--fog); max-width: 42rem; margin-top: .5rem; font-size: .95rem; }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1.1rem 2rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--water);
+    padding: .85rem 1.2rem;
+    margin-top: 1.4rem;
+    font-size: .82rem;
+  }
+  .legend .item { display: flex; align-items: center; gap: .6rem; color: var(--fog); }
+  .legend .item b { color: var(--text); font-weight: 600; }
+
+  /* ---------- lights ---------- */
+  .light {
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block; flex: none;
+    background: var(--starboard);
+    box-shadow: 0 0 10px 2px rgba(61,220,151,.55);
+    animation: breathe 3.2s ease-in-out infinite;
+  }
+  .light.port { background: var(--port); box-shadow: 0 0 10px 2px rgba(255,98,87,.55); }
+  .light.anchor { background: var(--anchor); box-shadow: 0 0 10px 2px rgba(245,184,74,.5); }
+  .light.unlit {
+    background: transparent; border: 1.5px solid var(--fog);
+    box-shadow: none; animation: none; opacity: .6;
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 8px 1px rgba(61,220,151,.4); }
+    50% { box-shadow: 0 0 13px 3px rgba(61,220,151,.65); }
+  }
+  .light.anchor { animation-name: breathe-a; }
+  @keyframes breathe-a {
+    0%, 100% { box-shadow: 0 0 8px 1px rgba(245,184,74,.35); }
+    50% { box-shadow: 0 0 13px 3px rgba(245,184,74,.6); }
+  }
+  @media (prefers-reduced-motion: reduce) { .light { animation: none !important; } }
+
+  /* ---------- berths ---------- */
+  .berths { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.4rem; }
+  .berth {
+    background: var(--water);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--fog);
+    border-radius: 0 0 6px 6px;
+    padding: 1.1rem 1.3rem 1.3rem;
+  }
+  .berth-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+  .berth-head .signage { color: var(--text); }
+  .berth-head .signage::before, .berth-head .signage::after { display: none; }
+  .berth-head .where { font-family: var(--mono); font-size: .72rem; color: var(--fog); }
+  .vessel {
+    display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: center;
+    padding: .7rem .2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .vessel:last-child { border-bottom: none; }
+  .vessel .name { font-family: var(--mono); font-size: .88rem; }
+  .vessel .name small { display: block; color: var(--fog); font-size: .74rem; margin-top: .1rem; }
+  .vessel .stat { font-family: var(--mono); font-size: .74rem; color: var(--fog); text-align: right; }
+  .berth-empty {
+    color: var(--fog); font-size: .88rem;
+    padding: 1.4rem .2rem .6rem;
+    display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start;
+  }
+  .berth-empty .light { margin-top: .3rem; }
+  .berth-empty b { color: var(--text); font-weight: 600; display: block; }
+
+  /* ---------- console grid ---------- */
+  .console { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.4rem; }
+  .panel {
+    background: var(--water);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem 1.3rem;
+  }
+  .panel .signage { margin-bottom: 1rem; }
+  .panel-wide { grid-column: 1 / -1; }
+
+  /* vitals */
+  .gauges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.3rem; }
+  .gauge .k { font-family: var(--sans-cond); font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--fog); }
+  .gauge .v { font-family: var(--mono); font-size: 1.45rem; margin: .25rem 0 .1rem; color: var(--masthead); }
+  .gauge .v small { font-size: .8rem; color: var(--fog); }
+  .gauge .d { font-size: .74rem; color: var(--fog); }
+  .bar {
+    position: relative; height: 6px; margin-top: .5rem;
+    background: var(--hull); border-radius: 3px;
+  }
+  .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--starboard); }
+  .bar.warn i { background: var(--anchor); }
+  .bar .tick {
+    position: absolute; top: -3px; bottom: -3px; width: 1px;
+    background: var(--fog); opacity: .55;
+  }
+
+  /* alarm board */
+  .alarm-row { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; }
+  .alarm-row .light { margin-top: .35rem; }
+  .alarm-name { font-family: var(--mono); font-size: .84rem; color: var(--anchor); }
+  .alarm-note { font-size: .84rem; color: var(--fog); margin-top: .3rem; max-width: 34rem; }
+  .alarm-note b { color: var(--text); font-weight: 600; }
+  .alarm-meta { font-family: var(--mono); font-size: .72rem; color: var(--fog); margin-top: .45rem; }
+  .all-clear { display: flex; gap: .9rem; align-items: center; color: var(--fog); font-size: .84rem; margin-top: 1rem; }
+
+  /* movements */
+  .movements { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: .8rem; }
+  .movements th {
+    font-family: var(--sans-cond); font-size: .68rem; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--fog);
+    text-align: left; padding: 0 1rem .5rem 0; border-bottom: 1px solid var(--line);
+  }
+  .movements td { padding: .55rem 1rem .55rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .movements tr:last-child td { border-bottom: none; }
+  .movements .ok { color: var(--starboard); }
+  .movements .back { color: var(--port); }
+  .movements .dim { color: var(--fog); }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* signal log */
+  .log {
+    font-family: var(--mono); font-size: .76rem; line-height: 1.75;
+    background: var(--deep);
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: .8rem 1rem;
+    height: 11.5rem; overflow-y: auto;
+  }
+  .log .t { color: var(--fog); }
+  .log .s200 { color: var(--starboard); }
+  .log .s404 { color: var(--anchor); }
+  .log .path { color: var(--text); }
+  .log-foot { display: flex; justify-content: space-between; align-items: center; margin-top: .6rem; font-size: .74rem; color: var(--fog); }
+
+  /* instruments */
+  .instruments { display: flex; flex-wrap: wrap; gap: .8rem; align-items: flex-end; }
+  .btn {
+    font-family: var(--sans-cond); font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; font-size: .72rem;
+    padding: .6rem 1.3rem; border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--hull); color: var(--text);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--fog); }
+  .btn-primary { background: var(--starboard); border-color: var(--starboard); color: var(--deep); }
+  .btn-primary:hover { background: #58E5A8; }
+  .btn-danger { background: transparent; border-color: var(--port); color: var(--port); }
+  .btn-danger:hover { background: rgba(255,98,87,.1); }
+  .field { display: inline-flex; flex-direction: column; gap: .3rem; }
+  .field label { font-family: var(--sans-cond); font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--fog); }
+  .field input {
+    font-family: var(--mono); font-size: .82rem;
+    padding: .5rem .7rem; border: 1px solid var(--line); border-radius: 4px;
+    background: var(--deep); color: var(--text); min-width: 15rem;
+  }
+
+  /* budget */
+  .budget-line { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--mono); font-size: .8rem; color: var(--fog); padding: .45rem 0; border-bottom: 1px solid var(--line); }
+  .budget-line:last-of-type { border-bottom: none; }
+  .budget-line b { color: var(--text); font-weight: 400; }
+  .budget-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .6rem; }
+  .budget-big { font-family: var(--mono); font-size: 1.45rem; color: var(--masthead); }
+  .budget-big small { color: var(--fog); font-size: .8rem; }
+  .budget-note { font-size: .74rem; color: var(--fog); }
+
+  /* tokens */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: .9rem; }
+  .swatch { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .swatch .chip { height: 2.9rem; }
+  .swatch .meta { padding: .45rem .6rem; font-family: var(--mono); font-size: .66rem; line-height: 1.5; color: var(--fog); }
+  .swatch .meta b { display: block; color: var(--text); font-weight: 400; letter-spacing: .1em; text-transform: uppercase; }
+  .type-spec { display: grid; gap: .9rem; margin-top: 1.4rem; }
+  .type-row { display: grid; grid-template-columns: 10rem 1fr; gap: 1.1rem; align-items: baseline; }
+  .type-row .role { font-family: var(--mono); font-size: .68rem; color: var(--fog); }
+  .spec-display { font-family: var(--sans-cond); font-weight: 700; font-size: 1.6rem; letter-spacing: .1em; text-transform: uppercase; }
+  .spec-body { font-size: .92rem; max-width: 36rem; color: var(--text); }
+  .spec-mono { font-family: var(--mono); font-size: .82rem; }
+
+  /* option nav */
+  .opt-nav {
+    display: flex; justify-content: space-between; gap: 1rem;
+    font-family: var(--mono); font-size: .74rem;
+    padding: 1rem 0; color: var(--fog);
+  }
+
+  @media (max-width: 860px) {
+    .berths, .console { grid-template-columns: 1fr; }
+    .gauges { grid-template-columns: repeat(2, 1fr); }
+    .type-row { grid-template-columns: 1fr; gap: .3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="opt-nav" aria-label="Design options">
+    <span>Option 2 of 3 · Harbour Watch</span>
+    <span><a href="index.html">All options</a> · next: <a href="03-namespace.html">Namespace</a></span>
+  </nav>
+
+  <header>
+    <div class="head-row">
+      <h1>WKX <span class="dim">Harbour Watch</span></h1>
+      <p class="watch-time"><b>Fri 18 Jul 2026 · 15:04 NZST</b><br>afternoon watch · seas slight</p>
+    </div>
+    <p class="thesis">Two berths, one watchkeeper. Every service shows a navigation light; the light tells you whether to act, the board tells you why.</p>
+
+    <div class="legend" role="note" aria-label="Signal legend">
+      <span class="item"><span class="light" aria-hidden="true"></span><span><b>Starboard</b> · underway, all well</span></span>
+      <span class="item"><span class="light anchor" aria-hidden="true"></span><span><b>Anchor</b> · holding, attend soon</span></span>
+      <span class="item"><span class="light port" aria-hidden="true"></span><span><b>Port</b> · fault, act now</span></span>
+      <span class="item"><span class="light unlit" aria-hidden="true"></span><span><b>Unlit</b> · not yet berthed</span></span>
+    </div>
+  </header>
+
+  <!-- berths -->
+  <section class="berths" aria-label="Berths">
+    <div class="berth">
+      <div class="berth-head">
+        <span class="signage">Cloud berth</span>
+        <span class="where">ap-southeast-2 · Sydney</span>
+      </div>
+      <div class="vessel">
+        <span class="light" aria-label="starboard"></span>
+        <span class="name">caddy-prod<small>wkx-caddy:2.10.0-cf · wildcard TLS · edge network</small></span>
+        <span class="stat">up 4 h 38 m</span>
+      </div>
+      <div class="vessel">
+        <span class="light" aria-label="starboard"></span>
+        <span class="name">hello-prod<small>wkx-hello:e7d09b4 · hello.wingkongexchange.dev</small></span>
+        <span class="stat">up 32 m</span>
+      </div>
+      <div class="vessel">
+        <span class="light unlit" aria-label="unlit"></span>
+        <span class="name">backup-prod<small>restic to S3, nightly · arrives M10</small></span>
+        <span class="stat">·</span>
+      </div>
+    </div>
+    <div class="berth">
+      <div class="berth-head">
+        <span class="signage">Home berth</span>
+        <span class="where">LAN only · Ubuntu x86</span>
+      </div>
+      <div class="berth-empty">
+        <span class="light unlit" aria-label="unlit"></span>
+        <span><b>Berth prepared, no arrivals yet.</b>
+        The on-prem mirror docks at M9: same Compose stack, Caddy on the LAN IP, no CloudWatch. Bootstrap script is ready to run.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- console -->
+  <section class="console" aria-label="Console">
+
+    <div class="panel panel-wide">
+      <p class="signage">Host vitals · t4g.medium · replaced 10:26</p>
+      <div class="gauges">
+        <div class="gauge">
+          <p class="k">CPU</p>
+          <p class="v">6<small> %</small></p>
+          <p class="d">2 vCPU, idling</p>
+          <div class="bar"><i style="width:6%"></i><span class="tick" style="left:80%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">Memory</p>
+          <p class="v">1.7<small> / 3.8 GiB</small></p>
+          <p class="d">45% committed</p>
+          <div class="bar"><i style="width:45%"></i><span class="tick" style="left:85%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">/srv/data</p>
+          <p class="v">6.2<small> / 19.6 GB</small></p>
+          <p class="d">Data volume, outlives the Host</p>
+          <div class="bar"><i style="width:32%"></i><span class="tick" style="left:80%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">CPU credits</p>
+          <p class="v">212<small> / 576</small></p>
+          <p class="d">refilling at 48 / h</p>
+          <div class="bar warn"><i style="width:37%"></i><span class="tick" style="left:26%"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="signage">Alarm board</p>
+      <div class="alarm-row">
+        <span class="light anchor" aria-label="anchor"></span>
+        <div>
+          <p class="alarm-name">wkx-host-cpu-credits</p>
+          <p class="alarm-note"><b>CloudWatch state: ALARM. Watch assessment: holding.</b>
+          Credit bank refills after this morning's Host replacement; self-resolves in five to six hours. No action owed.</p>
+          <p class="alarm-meta">since 10:52 · 4 h 12 m · threshold 150</p>
+        </div>
+      </div>
+      <div class="all-clear">
+        <span class="light unlit" aria-hidden="true"></span>
+        disk, memory, CPU usage: all quiet
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="signage">Monthly account · NZD cap 50</p>
+      <div class="budget-head">
+        <span class="budget-big">27.65<small> NZD month to date</small></span>
+        <span class="budget-note">forecast 46.10</span>
+      </div>
+      <div class="bar" style="margin-bottom: .9rem"><i style="width:55%"></i><span class="tick" style="left:92%"></span></div>
+      <div class="budget-line"><span>EC2 t4g.medium <b class="dim">· Savings Plan waits at M10</b></span><b>19.10</b></div>
+      <div class="budget-line"><span>EBS, EIP, CloudWatch, ECR, S3</span><b>6.90</b></div>
+      <div class="budget-line"><span>Domain, amortised</span><b>1.65</b></div>
+      <div class="budget-line"><span>Cloudflare, free tier</span><b>0.00</b></div>
+    </div>
+
+    <div class="panel panel-wide">
+      <p class="signage">Movements · deploy log</p>
+      <div class="tbl-wrap">
+      <table class="movements">
+        <thead>
+          <tr><th>Time</th><th>Vessel</th><th>Cargo</th><th>Movement</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="dim">18 Jul 14:32</td>
+            <td>hello · prod</td>
+            <td>e7d09b4</td>
+            <td class="ok">DEPLOYED</td>
+            <td class="dim">render, pull, up, reload · 1 m 48 s</td>
+          </tr>
+          <tr>
+            <td class="dim">18 Jul 10:41</td>
+            <td>platform · prod</td>
+            <td>caddy 2.10.0-cf</td>
+            <td class="ok">DEPLOYED</td>
+            <td class="dim">re-berthed after Host replacement</td>
+          </tr>
+          <tr>
+            <td class="dim">17 Jul 19:08</td>
+            <td>hello · prod</td>
+            <td>9c21f77 → a3f91c2</td>
+            <td class="back">ROLLED BACK</td>
+            <td class="dim">git revert · under two minutes</td>
+          </tr>
+          <tr>
+            <td class="dim">16 Jul 21:12</td>
+            <td>hello · prod</td>
+            <td>9c21f77</td>
+            <td class="ok">DEPLOYED</td>
+            <td class="dim">reverted the next evening</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="panel panel-wide">
+      <p class="signage">Signal log · caddy access · hello.wingkongexchange.dev</p>
+      <div class="log" id="log" aria-live="off"></div>
+      <div class="log-foot">
+        <span id="log-state">receiving</span>
+        <button class="btn" id="log-toggle" style="padding:.35rem .9rem">Hold</button>
+      </div>
+    </div>
+
+    <div class="panel panel-wide">
+      <p class="signage">Instruments</p>
+      <div class="instruments">
+        <button class="btn btn-primary">Deploy e7d09b4</button>
+        <button class="btn">Re-render env-file</button>
+        <button class="btn">Roll back to a3f91c2</button>
+        <button class="btn btn-danger">Tear down pr-4</button>
+        <span class="field">
+          <label for="param-1">Parameter value</label>
+          <input id="param-1" type="text" value="hello world">
+        </span>
+      </div>
+    </div>
+
+    <div class="panel panel-wide">
+      <p class="signage">Tokens of the system</p>
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:#0A141E; border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>#0A141E</div></div>
+        <div class="swatch"><div class="chip" style="background:#0E1C2A"></div><div class="meta"><b>water</b>#0E1C2A</div></div>
+        <div class="swatch"><div class="chip" style="background:#E8F0F6"></div><div class="meta"><b>text</b>#E8F0F6</div></div>
+        <div class="swatch"><div class="chip" style="background:#3DDC97"></div><div class="meta"><b>starboard</b>#3DDC97</div></div>
+        <div class="swatch"><div class="chip" style="background:#F5B84A"></div><div class="meta"><b>anchor</b>#F5B84A</div></div>
+        <div class="swatch"><div class="chip" style="background:#FF6257"></div><div class="meta"><b>port</b>#FF6257</div></div>
+      </div>
+      <div class="type-spec">
+        <div class="type-row">
+          <span class="role">Display · Avenir Next Condensed</span>
+          <span class="spec-display">Two berths, one watchkeeper</span>
+        </div>
+        <div class="type-row">
+          <span class="role">Body · Avenir Next</span>
+          <span class="spec-body">The light tells you whether to act; the board tells you why. Signals are earned from thresholds, never decoration.</span>
+        </div>
+        <div class="type-row">
+          <span class="role">Data · Menlo</span>
+          <span class="spec-mono">docker compose -p hello-prod up -d · /wkx/hello/prod/MESSAGE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="opt-nav" aria-label="Design options">
+    <span><a href="index.html">All options</a></span>
+    <span>next: <a href="03-namespace.html">Namespace</a></span>
+  </nav>
+</div>
+
+<script>
+  // Signal log: a fixed reel of request shapes with a clock that keeps advancing,
+  // so replayed lines never carry a stale timestamp.
+  const reel = [
+    ['GET', '/', 200, '3.1ms'],
+    ['GET', '/healthz', 200, '0.8ms'],
+    ['GET', '/', 200, '2.7ms'],
+    ['GET', '/wp-login.php', 404, '0.4ms'],
+    ['GET', '/healthz', 200, '0.7ms'],
+    ['GET', '/', 200, '2.9ms'],
+    ['GET', '/favicon.ico', 200, '1.2ms'],
+    ['GET', '/healthz', 200, '0.8ms'],
+    ['GET', '/', 200, '3.4ms'],
+    ['GET', '/.env', 404, '0.3ms'],
+    ['GET', '/', 200, '2.6ms'],
+    ['GET', '/healthz', 200, '0.9ms'],
+  ];
+  const gaps = [8, 11, 7, 13, 9, 12, 6, 14];
+  const log = document.getElementById('log');
+  const toggle = document.getElementById('log-toggle');
+  const state = document.getElementById('log-state');
+  let i = 0, held = false;
+  let clock = 15 * 3600 + 4 * 60 + 11; // 15:04:11 NZST
+
+  function stamp() {
+    const h = Math.floor(clock / 3600) % 24, m = Math.floor(clock / 60) % 60, s = clock % 60;
+    return [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+  }
+  function line([m, p, s, d]) {
+    const el = document.createElement('div');
+    el.innerHTML = '<span class="t">' + stamp() + '</span> ' + m +
+      ' <span class="path">' + p + '</span> <span class="s' + s + '">' + s + '</span> <span class="t">' + d + '</span>';
+    clock += gaps[i % gaps.length];
+    return el;
+  }
+  // seed the box most of the way full immediately
+  for (; i < 8; i++) log.appendChild(line(reel[i]));
+  log.scrollTop = log.scrollHeight;
+
+  setInterval(() => {
+    if (held) return;
+    log.appendChild(line(reel[i % reel.length]));
+    i++;
+    while (log.children.length > 40) log.removeChild(log.firstChild);
+    log.scrollTop = log.scrollHeight;
+  }, 2600);
+
+  toggle.addEventListener('click', () => {
+    held = !held;
+    toggle.textContent = held ? 'Resume' : 'Hold';
+    state.textContent = held ? 'held' : 'receiving';
+  });
+</script>
+</body>
+</html>
