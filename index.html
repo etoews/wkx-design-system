@@ -3,108 +3,712 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WKX design system · three options</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23FFFFFF'/%3E%3Crect x='1' y='1' width='6' height='6' fill='%23C64B33'/%3E%3Crect x='9' y='1' width='6' height='6' fill='%230A141E'/%3E%3Crect x='1' y='9' width='6' height='6' fill='%23177A45'/%3E%3Crect x='9' y='9' width='6' height='6' fill='%23FFE9A3'/%3E%3C/svg%3E">
+<title>WKX Namespace · design system</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230A141E'/%3E%3Cpath d='M10 2 L6 14' stroke='%23FFE9A3' stroke-width='2'/%3E%3C/svg%3E">
+<script>
+  // Apply a saved theme override before first paint; without one, the
+  // system setting decides via prefers-color-scheme.
+  (function () {
+    const saved = localStorage.getItem('wkx-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+  })();
+</script>
 <style>
+  :root {
+    /* night, the identity default */
+    --deep: #0A141E;       /* page, near-navy night */
+    --water: #0E1C2A;      /* panels */
+    --hull: #14273A;       /* raised panels */
+    --line: #21374C;
+    --text: #E8F0F6;
+    --fog: #8AA3B5;
+    --add: #3DDC97;        /* + up, all well */
+    --del: #FF6257;        /* - down, act now */
+    --chg: #F5B84A;        /* ~ stabilising, attend if it lingers */
+    --masthead: #FFFFFF;
+    --match: #FFE9A3;      /* token highlight */
+    --on-match: #0A141E;   /* text on the highlight */
+    --on-accent: #0A141E;  /* text on filled accent buttons */
+    --add-hover: #58E5A8;
+    --del-tint: rgba(255, 98, 87, .1);
+    --glow-add: rgba(61, 220, 151, .55);
+    --glow-add-lo: rgba(61, 220, 151, .4);
+    --glow-add-hi: rgba(61, 220, 151, .65);
+    --glow-del: rgba(255, 98, 87, .55);
+    --glow-chg: rgba(245, 184, 74, .5);
+    --glow-chg-lo: rgba(245, 184, 74, .35);
+    --glow-chg-hi: rgba(245, 184, 74, .6);
+    --match-glow: rgba(255, 233, 163, .35);
+    --sans: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --sans-cond: "Avenir Next Condensed", "Avenir Next", "Arial Narrow", sans-serif;
+    --mono: ui-monospace, "Menlo", "SF Mono", monospace;
+  }
+  /* day: applied when the system prefers light and no dark override is set,
+     or when the operator explicitly picks light */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --deep: #EEF3F6;
+      --water: #FFFFFF;
+      --hull: #DFE8EE;
+      --line: #C6D3DC;
+      --text: #182634;
+      --fog: #5B7284;
+      --add: #0F8A5F;
+      --del: #C3362B;
+      --chg: #A06E00;
+      --masthead: #0A141E;
+      --match: #FFE9A3;
+      --on-match: #182634;
+      --on-accent: #F5FAF8;
+      --add-hover: #0C7A54;
+      --del-tint: rgba(195, 54, 43, .08);
+      --glow-add: rgba(15, 138, 95, .35);
+      --glow-add-lo: rgba(15, 138, 95, .25);
+      --glow-add-hi: rgba(15, 138, 95, .45);
+      --glow-del: rgba(195, 54, 43, .35);
+      --glow-chg: rgba(160, 110, 0, .35);
+      --glow-chg-lo: rgba(160, 110, 0, .25);
+      --glow-chg-hi: rgba(160, 110, 0, .45);
+      --match-glow: rgba(160, 110, 0, .25);
+    }
+  }
+  :root[data-theme="light"] {
+    --deep: #EEF3F6;
+    --water: #FFFFFF;
+    --hull: #DFE8EE;
+    --line: #C6D3DC;
+    --text: #182634;
+    --fog: #5B7284;
+    --add: #0F8A5F;
+    --del: #C3362B;
+    --chg: #A06E00;
+    --masthead: #0A141E;
+    --match: #FFE9A3;
+    --on-match: #182634;
+    --on-accent: #F5FAF8;
+    --add-hover: #0C7A54;
+    --del-tint: rgba(195, 54, 43, .08);
+    --glow-add: rgba(15, 138, 95, .35);
+    --glow-add-lo: rgba(15, 138, 95, .25);
+    --glow-add-hi: rgba(15, 138, 95, .45);
+    --glow-del: rgba(195, 54, 43, .35);
+    --glow-chg: rgba(160, 110, 0, .35);
+    --glow-chg-lo: rgba(160, 110, 0, .25);
+    --glow-chg-hi: rgba(160, 110, 0, .45);
+    --match-glow: rgba(160, 110, 0, .25);
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #FFFFFF;
-    color: #1B1B1B;
-    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.55;
+    background: var(--deep);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
   }
-  .page { max-width: 44rem; margin: 0 auto; padding: 4rem 1.5rem 5rem; }
-  h1 { font-size: 1.6rem; font-weight: 650; letter-spacing: -.01em; }
-  .sub { color: #6C6C6C; margin-top: .5rem; max-width: 38rem; }
-  .options { list-style: none; margin-top: 2.5rem; display: grid; gap: 1.1rem; }
-  .option a {
-    display: grid; grid-template-columns: auto 1fr; gap: 1.1rem; align-items: start;
-    border: 1px solid #E3E3E0; border-radius: 6px;
-    padding: 1.2rem 1.4rem;
-    text-decoration: none; color: inherit;
+  /* Fluid width: the workbench takes the whole screen; prose stays capped inside panels. */
+  .page { margin: 0 auto; padding: 0 clamp(1.5rem, 2.5vw, 4rem) 5rem; }
+  a { color: var(--add); }
+  :focus-visible { outline: 2px solid var(--chg); outline-offset: 2px; }
+
+  /* ---------- token highlight ---------- */
+  .slot {
+    border-bottom: 1px dotted var(--fog);
+    cursor: pointer;
+    border-radius: 2px;
   }
-  .option a:hover { border-color: #1B1B1B; }
-  .option a:focus-visible { outline: 2px solid #1B1B1B; outline-offset: 2px; }
-  .palette { display: grid; grid-template-columns: repeat(2, 1rem); grid-auto-rows: 1rem; gap: 3px; margin-top: .25rem; }
-  .palette i { border-radius: 2px; border: 1px solid rgba(0,0,0,.08); }
-  .option h2 { font-size: 1.05rem; font-weight: 650; }
-  .option h2 small { color: #6C6C6C; font-weight: 400; }
-  .option p { color: #555; font-size: .92rem; margin-top: .25rem; }
-  footer { margin-top: 3rem; color: #8A8A8A; font-size: .82rem; }
-  footer code { font-family: ui-monospace, "Menlo", monospace; font-size: .78rem; }
+  .slot.match {
+    background: var(--match);
+    color: var(--on-match);
+    border-bottom-color: transparent;
+    box-shadow: 0 0 10px var(--match-glow);
+  }
+  .slot.pinned { outline: 1.5px solid var(--match); outline-offset: 1px; }
+  .hint {
+    display: inline-block; margin-top: 1.1rem;
+    font-size: .8rem; padding: .4rem .8rem;
+    background: var(--match); color: var(--on-match); border-radius: 4px;
+  }
+
+  /* ---------- section heads ---------- */
+  .signage {
+    font-family: var(--sans-cond);
+    font-weight: 600;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--fog);
+    font-size: .72rem;
+    display: flex; align-items: center; gap: .9rem;
+  }
+  .signage::before, .signage::after {
+    content: ""; height: 1px; background: var(--line); flex: 1;
+  }
+  .signage::before { max-width: 1.6rem; flex: none; width: 1.6rem; }
+  .signage .path {
+    font-family: var(--mono); font-weight: 400;
+    text-transform: none; letter-spacing: .02em;
+    font-size: .78rem; color: var(--text);
+  }
+
+  /* ---------- header ---------- */
+  header { padding: 2.4rem 0 1.6rem; }
+  .head-row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+  h1 {
+    font-family: var(--sans-cond);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--masthead);
+  }
+  h1 .dim { color: var(--fog); font-weight: 500; }
+  .head-time { font-family: var(--mono); font-size: .8rem; color: var(--fog); text-align: right; }
+  .head-time b { color: var(--text); font-weight: 400; }
+  .thesis { color: var(--fog); max-width: 44rem; margin-top: .5rem; font-size: .95rem; }
+  .thesis b { color: var(--text); font-weight: 600; }
+
+  /* ---------- status legend ---------- */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1.1rem 2rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--water);
+    padding: .85rem 1.2rem;
+    margin-top: 1.4rem;
+    font-size: .82rem;
+  }
+  .legend .item { display: flex; align-items: center; gap: .6rem; color: var(--fog); }
+  .legend .item b { color: var(--text); font-weight: 600; }
+  .sym { font-family: var(--mono); font-weight: 700; }
+  .sym.add { color: var(--add); }
+  .sym.chg { color: var(--chg); }
+  .sym.del { color: var(--del); }
+
+  /* ---------- status lights ---------- */
+  .light {
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block; flex: none;
+    background: var(--add);
+    box-shadow: 0 0 10px 2px var(--glow-add);
+    animation: breathe 3.2s ease-in-out infinite;
+  }
+  .light.del { background: var(--del); box-shadow: 0 0 10px 2px var(--glow-del); }
+  .light.chg { background: var(--chg); box-shadow: 0 0 10px 2px var(--glow-chg); }
+  .light.unlit {
+    background: transparent; border: 1.5px solid var(--fog);
+    box-shadow: none; animation: none; opacity: .6;
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 8px 1px var(--glow-add-lo); }
+    50% { box-shadow: 0 0 13px 3px var(--glow-add-hi); }
+  }
+  .light.chg { animation-name: breathe-c; }
+  @keyframes breathe-c {
+    0%, 100% { box-shadow: 0 0 8px 1px var(--glow-chg-lo); }
+    50% { box-shadow: 0 0 13px 3px var(--glow-chg-hi); }
+  }
+  @media (prefers-reduced-motion: reduce) { .light { animation: none !important; } }
+
+  /* ---------- env groups ---------- */
+  .envs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.4rem; }
+  .env-group {
+    background: var(--water);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--fog);
+    border-radius: 0 0 6px 6px;
+    padding: 1.1rem 1.3rem 1.3rem;
+  }
+  .env-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+  .env-head .path { font-family: var(--mono); font-size: .88rem; color: var(--text); }
+  .env-head .where { font-family: var(--mono); font-size: .72rem; color: var(--fog); }
+  .service {
+    display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: center;
+    padding: .7rem .2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .service:last-child { border-bottom: none; }
+  .service .name { font-family: var(--mono); font-size: .88rem; }
+  .service .name small { display: block; color: var(--fog); font-size: .74rem; margin-top: .1rem; }
+  .service .stat { font-family: var(--mono); font-size: .74rem; color: var(--fog); text-align: right; }
+  .env-empty {
+    color: var(--fog); font-size: .88rem;
+    padding: 1.4rem .2rem .6rem;
+    display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start;
+  }
+  .env-empty .light { margin-top: .3rem; }
+  .env-empty b { color: var(--text); font-weight: 600; display: block; }
+  .env-empty span:last-child { max-width: 36rem; }
+
+  /* ---------- console grid ---------- */
+  .console { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 2.4rem; }
+  .panel {
+    background: var(--water);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem 1.3rem;
+  }
+  .panel .signage { margin-bottom: 1rem; }
+  .panel-wide { grid-column: 1 / -1; }
+
+  /* Wider screens: more panels share a row rather than stretching. */
+  @media (min-width: 1500px) {
+    .console { grid-template-columns: repeat(6, 1fr); }
+    .console .panel { grid-column: span 3; }
+    .console .panel-wide { grid-column: 1 / -1; }
+    .console .panel-deploys, .console .panel-log { grid-column: span 3; }
+  }
+  @media (min-width: 2100px) {
+    .console { grid-auto-flow: dense; }
+    .console .panel-alarms, .console .panel-budget, .console .panel-instruments { grid-column: span 2; }
+  }
+
+  /* vitals */
+  .gauges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.3rem; }
+  .gauge .k { font-family: var(--sans-cond); font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--fog); }
+  .gauge .v { font-family: var(--mono); font-size: 1.45rem; margin: .25rem 0 .1rem; color: var(--masthead); }
+  .gauge .v small { font-size: .8rem; color: var(--fog); }
+  .gauge .d { font-size: .74rem; color: var(--fog); }
+  .bar {
+    position: relative; height: 6px; margin-top: .5rem;
+    background: var(--hull); border-radius: 3px;
+  }
+  .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--add); }
+  .bar.warn i { background: var(--chg); }
+  .bar .tick {
+    position: absolute; top: -3px; bottom: -3px; width: 1px;
+    background: var(--fog); opacity: .55;
+  }
+
+  /* alarms */
+  .alarm-row { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; }
+  .alarm-row .light { margin-top: .35rem; }
+  .alarm-name { font-family: var(--mono); font-size: .84rem; color: var(--chg); }
+  .alarm-note { font-size: .84rem; color: var(--fog); margin-top: .3rem; max-width: 34rem; }
+  .alarm-note b { color: var(--text); font-weight: 600; }
+  .alarm-meta { font-family: var(--mono); font-size: .72rem; color: var(--fog); margin-top: .45rem; }
+  .all-clear { display: flex; gap: .7rem; align-items: baseline; color: var(--fog); font-size: .84rem; margin-top: 1rem; }
+
+  /* deploys */
+  .deploys { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: .8rem; }
+  .deploys th {
+    font-family: var(--sans-cond); font-size: .68rem; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--fog);
+    text-align: left; padding: 0 1rem .5rem 0; border-bottom: 1px solid var(--line);
+  }
+  .deploys td { padding: .55rem 1rem .55rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .deploys tr:last-child td { border-bottom: none; }
+  .deploys .ok { color: var(--add); }
+  .deploys .back { color: var(--del); }
+  .deploys .dim { color: var(--fog); }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* access log */
+  .log {
+    font-family: var(--mono); font-size: .76rem; line-height: 1.75;
+    background: var(--deep);
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: .8rem 1rem;
+    height: 11.5rem; overflow-y: auto;
+  }
+  .log .t { color: var(--fog); }
+  .log .s200 { color: var(--add); }
+  .log .s404 { color: var(--chg); }
+  .log .path { color: var(--text); }
+  .log-foot { display: flex; justify-content: space-between; align-items: center; margin-top: .6rem; font-size: .74rem; color: var(--fog); }
+
+  /* instruments */
+  .instruments { display: flex; flex-wrap: wrap; gap: .8rem; align-items: flex-end; }
+  .btn {
+    font-family: var(--sans-cond); font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; font-size: .72rem;
+    padding: .6rem 1.3rem; border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--hull); color: var(--text);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--fog); }
+  .btn-primary { background: var(--add); border-color: var(--add); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--add-hover); }
+  .btn-danger { background: transparent; border-color: var(--del); color: var(--del); }
+  .btn-danger:hover { background: var(--del-tint); }
+  .field { display: inline-flex; flex-direction: column; gap: .3rem; }
+  .field label { font-family: var(--mono); font-size: .7rem; color: var(--fog); }
+  .field input {
+    font-family: var(--mono); font-size: .82rem;
+    padding: .5rem .7rem; border: 1px solid var(--line); border-radius: 4px;
+    background: var(--deep); color: var(--text); min-width: 15rem;
+  }
+
+  /* budget */
+  .budget-line { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--mono); font-size: .8rem; color: var(--fog); padding: .45rem 0; border-bottom: 1px solid var(--line); }
+  .budget-line:last-of-type { border-bottom: none; }
+  .budget-line b { color: var(--text); font-weight: 400; }
+  .budget-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .6rem; }
+  .budget-big { font-family: var(--mono); font-size: 1.45rem; color: var(--masthead); }
+  .budget-big small { color: var(--fog); font-size: .8rem; }
+  .budget-note { font-size: .74rem; color: var(--fog); }
+
+  /* tokens */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: .9rem; }
+  .swatch { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .swatch .chip { height: 2.9rem; }
+  .swatch .meta { padding: .45rem .6rem; font-family: var(--mono); font-size: .66rem; line-height: 1.5; color: var(--fog); }
+  .swatch .meta b { display: block; color: var(--text); font-weight: 400; letter-spacing: .1em; text-transform: uppercase; }
+  .type-spec { display: grid; gap: .9rem; margin-top: 1.4rem; }
+  .type-row { display: grid; grid-template-columns: 10rem 1fr; gap: 1.1rem; align-items: baseline; }
+  .type-row .role { font-family: var(--mono); font-size: .68rem; color: var(--fog); }
+  .spec-display { font-family: var(--sans-cond); font-weight: 700; font-size: 1.6rem; letter-spacing: .1em; text-transform: uppercase; }
+  .spec-body { font-size: .92rem; max-width: 36rem; color: var(--text); }
+  .spec-mono { font-family: var(--mono); font-size: .82rem; }
+
+  /* option nav */
+  .opt-nav {
+    display: flex; justify-content: space-between; gap: 1rem;
+    font-family: var(--mono); font-size: .74rem;
+    padding: 1rem 0; color: var(--fog);
+  }
+  .theme-btn {
+    font-family: var(--mono); font-size: .72rem;
+    padding: .2rem .7rem; border-radius: 4px;
+    border: 1px solid var(--line);
+    background: transparent; color: var(--fog);
+    cursor: pointer;
+  }
+  .theme-btn:hover { border-color: var(--fog); color: var(--text); }
+
+  @media (max-width: 860px) {
+    .envs, .console { grid-template-columns: 1fr; }
+    .gauges { grid-template-columns: repeat(2, 1fr); }
+    .type-row { grid-template-columns: 1fr; gap: .3rem; }
+  }
 </style>
 </head>
 <body>
 <div class="page">
-  <h1>WKX design system · four options</h1>
-  <p class="sub">Four visual languages for the operational interfaces of wkx-platform,
-    each carrying the same surface: fleet, vitals, alarms, deploys, parameters, and the monthly account.
-    Same facts, four points of view.</p>
 
-  <ul class="options">
-    <li class="option">
-      <a href="01-red-ledger.html">
-        <span class="palette" aria-hidden="true">
-          <i style="background:#FCFAF4"></i><i style="background:#C64B33"></i>
-          <i style="background:#256F55"></i><i style="background:#291F13"></i>
-        </span>
-        <span>
-          <h2>1 · Red Ledger <small>· light, serif, narrative</small></h2>
-          <p>Wing Kong Exchange is a trading house, so the platform keeps a trading ledger:
-          vermilion-ruled accounts, jade chop stamps for state, the budget settled like a monthly book.</p>
-        </span>
-      </a>
-    </li>
-    <li class="option">
-      <a href="02-harbour-watch.html">
-        <span class="palette" aria-hidden="true">
-          <i style="background:#0A141E"></i><i style="background:#3DDC97"></i>
-          <i style="background:#F5B84A"></i><i style="background:#FF6257"></i>
-        </span>
-        <span>
-          <h2>2 · Harbour Watch <small>· dark, dense, signal-driven</small></h2>
-          <p>Two berths, cloud and home, watched at night. Status is a navigation light with
-          documented meaning: starboard green underway, anchor amber holding, port red fault.</p>
-        </span>
-      </a>
-    </li>
-    <li class="option">
-      <a href="03-namespace-v0.html">
-        <span class="palette" aria-hidden="true">
-          <i style="background:#FAFAF7"></i><i style="background:#177A45"></i>
-          <i style="background:#FFE9A3"></i><i style="background:#1C211D"></i>
-        </span>
-        <span>
-          <h2>3 · Namespace v0 <small>· light, monospace, interactive</small></h2>
-          <p>The first take on the path grammar as the interface: every panel addressed by
-          /wkx/&lt;service&gt;/&lt;env&gt;, Terraform plan symbols for state, and hover-to-highlight
-          on every token of the ubiquitous language. Superseded by option 4.</p>
-        </span>
-      </a>
-    </li>
-    <li class="option">
-      <a href="04-namespace.html">
-        <span class="palette" aria-hidden="true">
-          <i style="background:#0A141E"></i><i style="background:#FFE9A3"></i>
-          <i style="background:#3DDC97"></i><i style="background:#F5B84A"></i>
-        </span>
-        <span>
-          <h2>4 · Namespace <small>· dense, interactive, light and dark</small></h2>
-          <p>The namespace by night or by day, following the system theme with a manual override:
-          the console layout and status lights of Harbour Watch, speaking the path grammar.
-          Panels addressed by /wkx/&lt;service&gt;/&lt;env&gt;, plan symbols for state, and
-          hover-to-highlight on every token of the ubiquitous language.</p>
-        </span>
-      </a>
-    </li>
-  </ul>
+  <nav class="opt-nav" aria-label="Page controls">
+    <span>wkx-namespace · design system</span>
+    <span>theme: <button class="theme-btn" id="theme-toggle" aria-label="Theme, cycles auto, light, dark">auto</button></span>
+  </nav>
 
-  <footer>
-    Static HTML and JS only, no build step. Open any option directly, or serve the folder with
-    <code>python3 -m http.server</code>. Content reflects the platform as at M5, with M9 and M10
-    surfaces shown as honest empty states.
-  </footer>
+  <header>
+    <div class="head-row">
+      <h1>WKX <span class="dim">Namespace</span></h1>
+      <p class="head-time"><b>Fri 18 Jul 2026 · 15:04 NZST</b><br>every namespace on one page</p>
+    </div>
+    <p class="thesis">The namespace is the interface, by night or by day. Every panel is addressed by its path,
+      statuses borrow Terraform's plan symbols, and any token of the <b>ubiquitous language</b>
+      lights up wherever else it appears.</p>
+    <span class="hint">Hover or focus any dotted token to light up its every appearance. Click to pin, Esc to release.</span>
+
+    <div class="legend" role="note" aria-label="Status legend">
+      <span class="item"><span class="light" aria-hidden="true"></span><span><span class="sym add">+</span> · <b>up</b>, all well</span></span>
+      <span class="item"><span class="light chg" aria-hidden="true"></span><span><span class="sym chg">~</span> · <b>stabilising</b>, attend if it lingers</span></span>
+      <span class="item"><span class="light del" aria-hidden="true"></span><span><span class="sym del">−</span> · <b>down</b>, act now</span></span>
+      <span class="item"><span class="light unlit" aria-hidden="true"></span><span><b>unlit</b> · not yet deployed</span></span>
+    </div>
+  </header>
+
+  <!-- env groups -->
+  <section class="envs" aria-label="Environments">
+    <div class="env-group">
+      <div class="env-head">
+        <span class="path">env=<span class="slot" data-slot="prod" tabindex="0">prod</span></span>
+        <span class="where">Cloud Host · ap-southeast-2 · Sydney</span>
+      </div>
+      <div class="service">
+        <span class="light" aria-label="up"></span>
+        <span class="name"><span class="slot" data-slot="caddy" tabindex="0">caddy</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-caddy:2.10.0-cf · wildcard TLS · edge network</small></span>
+        <span class="stat">up 4 h 38 m</span>
+      </div>
+      <div class="service">
+        <span class="light" aria-label="up"></span>
+        <span class="name"><span class="slot" data-slot="hello" tabindex="0">hello</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>wkx-hello:e7d09b4 · hello.wingkongexchange.dev</small></span>
+        <span class="stat">up 32 m</span>
+      </div>
+      <div class="service">
+        <span class="light unlit" aria-label="unlit"></span>
+        <span class="name"><span class="slot" data-slot="backup" tabindex="0">backup</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span><small>restic to S3, nightly · arrives M10</small></span>
+        <span class="stat">·</span>
+      </div>
+    </div>
+    <div class="env-group">
+      <div class="env-head">
+        <span class="path">env=<span class="slot" data-slot="home" tabindex="0">home</span></span>
+        <span class="where">Home server · LAN only · Ubuntu x86</span>
+      </div>
+      <div class="env-empty">
+        <span class="light unlit" aria-label="unlit"></span>
+        <span><b>Namespace reserved, nothing deployed.</b>
+        The env dimension has carried <span class="slot" data-slot="home" tabindex="0">home</span> in every name since M1;
+        when the on-prem mirror lands at M9, this group fills in without a refactor.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- console -->
+  <section class="console" aria-label="Console">
+
+    <div class="panel panel-wide panel-vitals">
+      <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="platform" tabindex="0">platform</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · vitals · t4g.medium · replaced 10:26</p>
+      <div class="gauges">
+        <div class="gauge">
+          <p class="k">CPU</p>
+          <p class="v">6<small> %</small></p>
+          <p class="d">2 vCPU, idling</p>
+          <div class="bar"><i style="width:6%"></i><span class="tick" style="left:80%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">Memory</p>
+          <p class="v">1.7<small> / 3.8 GiB</small></p>
+          <p class="d">45% committed</p>
+          <div class="bar"><i style="width:45%"></i><span class="tick" style="left:85%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">/srv/data</p>
+          <p class="v">6.2<small> / 19.6 GB</small></p>
+          <p class="d">Data volume, outlives the Host</p>
+          <div class="bar"><i style="width:32%"></i><span class="tick" style="left:80%"></span></div>
+        </div>
+        <div class="gauge">
+          <p class="k">CPU credits</p>
+          <p class="v">212<small> / 576</small></p>
+          <p class="d">refilling at 48 / h</p>
+          <div class="bar warn"><i style="width:37%"></i><span class="tick" style="left:26%"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-alarms">
+      <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="platform" tabindex="0">platform</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · alarms</p>
+      <div class="alarm-row">
+        <span class="light chg" aria-label="stabilising"></span>
+        <div>
+          <p class="alarm-name">wkx-host-cpu-credits</p>
+          <p class="alarm-note"><b>CloudWatch state: ALARM. Status: <span class="sym chg">~</span> stabilising.</b>
+          Credit bank refills after this morning's Host replacement; self-resolves in five to six hours. No action owed.</p>
+          <p class="alarm-meta">since 10:52 · 4 h 12 m · threshold 150</p>
+        </div>
+      </div>
+      <div class="all-clear">
+        <span class="sym add">+</span>
+        <span>disk, memory, cpu ×2 · all OK</span>
+      </div>
+    </div>
+
+    <div class="panel panel-budget">
+      <p class="signage"><span class="path">wkx-org-monthly</span> · no env slot · NZD cap 50</p>
+      <div class="budget-head">
+        <span class="budget-big">27.65<small> NZD month to date</small></span>
+        <span class="budget-note">forecast 46.10</span>
+      </div>
+      <div class="bar" style="margin-bottom: .9rem"><i style="width:55%"></i><span class="tick" style="left:92%"></span></div>
+      <div class="budget-line"><span>EC2 t4g.medium <b class="dim">· Savings Plan waits at M10</b></span><b>19.10</b></div>
+      <div class="budget-line"><span>EBS, EIP, CloudWatch, ECR, S3</span><b>6.90</b></div>
+      <div class="budget-line"><span>Domain, amortised</span><b>1.65</b></div>
+      <div class="budget-line"><span>Cloudflare, free tier</span><b>0.00</b></div>
+    </div>
+
+    <div class="panel panel-wide panel-deploys">
+      <p class="signage"><span class="path">/wkx/*/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · deploys</p>
+      <div class="tbl-wrap">
+      <table class="deploys">
+        <thead>
+          <tr><th>Time</th><th>Service</th><th>Ref</th><th>Result</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="dim">18 Jul 14:32</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
+            <td>e7d09b4</td>
+            <td class="ok">+ deployed</td>
+            <td class="dim">render, pull, up, reload · 1 m 48 s</td>
+          </tr>
+          <tr>
+            <td class="dim">18 Jul 10:41</td>
+            <td><span class="slot" data-slot="platform" tabindex="0">platform</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
+            <td><span class="slot" data-slot="caddy" tabindex="0">caddy</span> 2.10.0-cf</td>
+            <td class="ok">+ deployed</td>
+            <td class="dim">redeployed after Host replacement</td>
+          </tr>
+          <tr>
+            <td class="dim">17 Jul 19:08</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
+            <td>9c21f77 → a3f91c2</td>
+            <td class="back">− rolled back</td>
+            <td class="dim">git revert · under two minutes</td>
+          </tr>
+          <tr>
+            <td class="dim">16 Jul 21:12</td>
+            <td><span class="slot" data-slot="hello" tabindex="0">hello</span> · <span class="slot" data-slot="prod" tabindex="0">prod</span></td>
+            <td>9c21f77</td>
+            <td class="ok">+ deployed</td>
+            <td class="dim">reverted the next evening</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="panel panel-wide panel-log">
+      <p class="signage"><span class="path">/wkx/<span class="slot" data-slot="caddy" tabindex="0">caddy</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span></span> · access log · <span class="path"><span class="slot" data-slot="hello" tabindex="0">hello</span>.wingkongexchange.dev</span></p>
+      <div class="log" id="log" aria-live="off"></div>
+      <div class="log-foot">
+        <span id="log-state">tailing</span>
+        <button class="btn" id="log-toggle" style="padding:.35rem .9rem">Pause</button>
+      </div>
+    </div>
+
+    <div class="panel panel-wide panel-instruments">
+      <p class="signage">Instruments</p>
+      <div class="instruments">
+        <button class="btn btn-primary">Deploy e7d09b4</button>
+        <button class="btn">Re-render env-file</button>
+        <button class="btn">Roll back to a3f91c2</button>
+        <button class="btn btn-danger">Tear down pr-4</button>
+        <span class="field">
+          <label for="param-1">/wkx/<span class="slot" data-slot="hello" tabindex="0">hello</span>/<span class="slot" data-slot="prod" tabindex="0">prod</span>/<span class="slot" data-slot="MESSAGE" tabindex="0">MESSAGE</span></label>
+          <input id="param-1" type="text" value="hello world">
+        </span>
+      </div>
+    </div>
+
+    <div class="panel panel-wide panel-tokens">
+      <p class="signage"><span class="path">/wkx/design/tokens</span> · recorded in the same shape as everything else</p>
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:var(--deep); border-bottom:1px solid var(--line)"></div><div class="meta"><b>deep</b>night #0A141E · day #EEF3F6</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--water); border-bottom:1px solid var(--line)"></div><div class="meta"><b>water</b>night #0E1C2A · day #FFFFFF</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--text)"></div><div class="meta"><b>text</b>night #E8F0F6 · day #182634</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--add)"></div><div class="meta"><b>add</b>night #3DDC97 · day #0F8A5F · + up</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--chg)"></div><div class="meta"><b>chg</b>night #F5B84A · day #A06E00 · ~ stabilising</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--del)"></div><div class="meta"><b>del</b>night #FF6257 · day #C3362B · − down</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--match)"></div><div class="meta"><b>match</b>#FFE9A3 both · token highlight</div></div>
+      </div>
+      <div class="type-spec">
+        <div class="type-row">
+          <span class="role">Display · Avenir Next Condensed</span>
+          <span class="spec-display">The namespace is the interface</span>
+        </div>
+        <div class="type-row">
+          <span class="role">Body · Avenir Next</span>
+          <span class="spec-body">Every panel is addressed by its path; every token lights up wherever else it appears. Signals are earned from thresholds, never decoration.</span>
+        </div>
+        <div class="type-row">
+          <span class="role">Data · Menlo</span>
+          <span class="spec-mono">docker compose -p <span class="slot" data-slot="hello" tabindex="0">hello</span>-<span class="slot" data-slot="prod" tabindex="0">prod</span> up -d</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
+
+<script>
+  // Access log: a fixed reel of request shapes with a clock that keeps advancing,
+  // so replayed lines never carry a stale timestamp.
+  const reel = [
+    ['GET', '/', 200, '3.1ms'],
+    ['GET', '/healthz', 200, '0.8ms'],
+    ['GET', '/', 200, '2.7ms'],
+    ['GET', '/wp-login.php', 404, '0.4ms'],
+    ['GET', '/healthz', 200, '0.7ms'],
+    ['GET', '/', 200, '2.9ms'],
+    ['GET', '/favicon.ico', 200, '1.2ms'],
+    ['GET', '/healthz', 200, '0.8ms'],
+    ['GET', '/', 200, '3.4ms'],
+    ['GET', '/.env', 404, '0.3ms'],
+    ['GET', '/', 200, '2.6ms'],
+    ['GET', '/healthz', 200, '0.9ms'],
+  ];
+  const gaps = [8, 11, 7, 13, 9, 12, 6, 14];
+  const log = document.getElementById('log');
+  const toggle = document.getElementById('log-toggle');
+  const state = document.getElementById('log-state');
+  let i = 0, held = false;
+  let clock = 15 * 3600 + 4 * 60 + 11; // 15:04:11 NZST
+
+  function stamp() {
+    const h = Math.floor(clock / 3600) % 24, m = Math.floor(clock / 60) % 60, s = clock % 60;
+    return [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+  }
+  function line([m, p, s, d]) {
+    const el = document.createElement('div');
+    el.innerHTML = '<span class="t">' + stamp() + '</span> ' + m +
+      ' <span class="path">' + p + '</span> <span class="s' + s + '">' + s + '</span> <span class="t">' + d + '</span>';
+    clock += gaps[i % gaps.length];
+    return el;
+  }
+  // seed the box most of the way full immediately
+  for (; i < 8; i++) log.appendChild(line(reel[i]));
+  log.scrollTop = log.scrollHeight;
+
+  setInterval(() => {
+    if (held) return;
+    log.appendChild(line(reel[i % reel.length]));
+    i++;
+    while (log.children.length > 40) log.removeChild(log.firstChild);
+    log.scrollTop = log.scrollHeight;
+  }, 2600);
+
+  toggle.addEventListener('click', () => {
+    held = !held;
+    toggle.textContent = held ? 'Resume' : 'Pause';
+    state.textContent = held ? 'paused' : 'tailing';
+  });
+
+  // The token highlight: hover, focus, or pin a token to light up every
+  // occurrence of that word across the page.
+  let pinnedValue = null;
+
+  function setMatch(value, on) {
+    document.querySelectorAll('[data-slot="' + value + '"]').forEach(el => {
+      el.classList.toggle('match', on || el.dataset.slot === pinnedValue);
+    });
+  }
+  function setPinned(value) {
+    document.querySelectorAll('.slot').forEach(el => {
+      el.classList.toggle('pinned', value !== null && el.dataset.slot === value);
+      el.classList.toggle('match', value !== null && el.dataset.slot === value);
+    });
+    pinnedValue = value;
+  }
+
+  document.querySelectorAll('.slot').forEach(el => {
+    const v = el.dataset.slot;
+    el.addEventListener('mouseenter', () => setMatch(v, true));
+    el.addEventListener('mouseleave', () => setMatch(v, false));
+    el.addEventListener('focus', () => setMatch(v, true));
+    el.addEventListener('blur', () => setMatch(v, false));
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      setPinned(pinnedValue === v ? null : v);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPinned(pinnedValue === v ? null : v); }
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') setPinned(null);
+  });
+
+  // Theme: auto follows the system setting; light and dark override it.
+  // The override persists and is applied before first paint by the head script.
+  const themeBtn = document.getElementById('theme-toggle');
+  const themes = ['auto', 'light', 'dark'];
+  let theme = localStorage.getItem('wkx-theme');
+  if (!themes.includes(theme)) theme = 'auto';
+  themeBtn.textContent = theme;
+
+  themeBtn.addEventListener('click', () => {
+    theme = themes[(themes.indexOf(theme) + 1) % themes.length];
+    if (theme === 'auto') {
+      delete document.documentElement.dataset.theme;
+      localStorage.removeItem('wkx-theme');
+    } else {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('wkx-theme', theme);
+    }
+    themeBtn.textContent = theme;
+  });
+</script>
 </body>
 </html>
