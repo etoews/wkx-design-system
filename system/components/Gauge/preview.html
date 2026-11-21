@@ -1,0 +1,20 @@
+<!-- @dsCard group="Data" height=130 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h(W.Panel, { label: 'vitals', labelCode: '/acme/host/prod' },
+      h('div', { className: 'wkx-gauges' },
+        h(W.Gauge, { label: 'CPU', value: '6', unit: '%', detail: '2 vCPU, idling', percent: 6, threshold: 80 }),
+        h(W.Gauge, { label: 'Memory', value: '1.7', unit: '/ 3.8 GiB', detail: '45% committed', percent: 45, threshold: 85 }),
+        h(W.Gauge, { label: 'Disk', value: '6.2', unit: '/ 19.6 GB', detail: 'data volume', percent: 32, threshold: 80 }),
+        h(W.Gauge, { label: 'Credits', value: '212', unit: '/ 576', detail: 'refilling at 48 / h', percent: 37, threshold: 26, tone: 'caution' }))));
+</script>
+</body>
+</html>

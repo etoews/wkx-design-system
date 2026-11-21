@@ -1,0 +1,53 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-21T22:36:05Z"
+  },
+  "title": "WKX",
+  "namespace": "WKX",
+  "libraries": [
+    {
+      "name": "react",
+      "version": "18"
+    },
+    {
+      "name": "react-dom",
+      "version": "18"
+    }
+  ],
+  "sections": {},
+  "groups": [
+    "Logos"
+  ],
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "m",
+      "order": [
+        "wkx-mark.svg"
+      ],
+      "files": {
+        "wkx-mark.svg": {
+          "name": "wkx-mark.svg",
+          "blob": "8c562f54ccec0213f37a43b1ec77908d",
+          "size": 180,
+          "type": "image/svg+xml"
+        }
+      }
+    }
+  },
+  "blobs": {},
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "lastChange": {
+    "by": "Everett Toews",
+    "at": "2026-11-21T23:32:17Z",
+    "via": "Claude Code · etoews/wkx-design-system",
+    "note": "The repo is now the source of truth: published from system/ in etoews/wkx-design-system; read-only here."
+  },
+  "editing": "code"
+}

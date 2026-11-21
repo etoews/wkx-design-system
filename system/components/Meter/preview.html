@@ -1,0 +1,18 @@
+<!-- @dsCard group="Data" height=90 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h('div', { className: 'wkx-stack', style: { maxWidth: '22rem' } },
+      h(W.Meter, { value: 45, threshold: 85, label: 'memory' }),
+      h(W.Meter, { value: 37, threshold: 26, tone: 'caution', label: 'credits' }),
+      h(W.Meter, { value: 94, threshold: 90, tone: 'danger', label: 'disk' })));
+</script>
+</body>
+</html>

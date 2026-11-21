@@ -1,0 +1,23 @@
+<!-- @dsCard group="Data" height=210 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h(W.Panel, { label: 'deploys', labelCode: '/acme/*/prod' },
+      h(W.DataTable, {
+        columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service' }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'note', label: 'Note' }],
+        rows: [
+          { time: '18 Jul 14:32', what: 'api · prod', ref: 'e7d09b4', result: '+ deployed', note: '1 m 48 s', tones: { time: 'muted', result: 'good', note: 'muted' } },
+          { time: '17 Jul 19:08', what: 'api · prod', ref: '9c21f77 → a3f91c2', result: '\u2212 rolled back', note: 'git revert', tones: { time: 'muted', result: 'danger', note: 'muted' } },
+          { time: '16 Jul 21:12', what: 'web · prod', ref: '9c21f77', result: '~ retried', note: 'second attempt', tones: { time: 'muted', result: 'caution', note: 'muted' } }
+        ]
+      })));
+</script>
+</body>
+</html>

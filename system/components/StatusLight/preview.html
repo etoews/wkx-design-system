@@ -1,0 +1,18 @@
+<!-- @dsCard group="Status" height=70 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h('div', { className: 'wkx-row', style: { gap: '1.6rem' } },
+      ['good','caution','danger','off'].map(function (s) {
+        return h('span', { key: s, className: 'wkx-row', style: { gap: '.6rem' } }, h(W.StatusLight, { status: s }), h('span', { style: { fontFamily: 'var(--font-mono)', fontSize: '.8rem', color: 'var(--ink-muted)' } }, s));
+      })));
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!-- @dsCard group="Data" height=230 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  var lines = [
+    ['15:04:11', 'GET', '/', '200', 'good', '3.1ms'],
+    ['15:04:19', 'GET', '/healthz', '200', 'good', '0.8ms'],
+    ['15:04:30', 'GET', '/wp-login.php', '404', 'caution', '0.4ms'],
+    ['15:04:37', 'POST', '/api/jobs', '500', 'danger', '12.6ms'],
+    ['15:04:50', 'GET', '/', '200', 'good', '2.9ms']
+  ].map(function (l, i) { return { id: i, time: l[0], parts: [{ text: l[1] }, { text: l[2] }, { text: l[3], tone: l[4] }, { text: l[5], tone: 'muted' }] }; });
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h(W.Panel, { label: 'access log', labelCode: '/acme/edge/prod' },
+      h(W.LogView, { lines: lines, height: '8rem', label: 'Access log', footer: [h('span', { key: 's' }, 'tailing'), h(W.Button, { key: 'b', size: 'small' }, 'Pause')] })));
+</script>
+</body>
+</html>

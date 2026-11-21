@@ -3,16 +3,48 @@
 The look and feel of every WKX app, and Namespace, the operational console of
 [wkx-platform](../wkx-platform/) that it grew out of.
 
-## The design system: WKX in Claude
+## The design system
 
-The design system lives in Claude as the **WKX** Design System artifact:
-<https://claude.ai/artifact/MMMcptPJx2svx85wF4FKXH>. It covers visual language
-only: colour tokens for the Night and Day themes, type, spacing, radii, glows,
-13 components with live previews, and a brand book. It carries no domain
-vocabulary. Each app supplies its own words.
+[system/](system/) is the WKX design system and its source of truth. It covers
+visual language only: colour tokens for the Night and Day themes, type,
+spacing, radii, glows, 13 components with live previews, and a brand book. It
+carries no domain vocabulary. Each app supplies its own words.
 
-To design or build an app in the WKX look, ask Claude to use the WKX design
-system. Change the system in Claude, not here.
+| Path | What |
+| --- | --- |
+| [system/tokens.json](system/tokens.json) | Every token. The one source for every value |
+| [system/tokens.css](system/tokens.css) | Generated from `tokens.json`. Never edit it by hand |
+| [system/README.md](system/README.md) | The brand book: principles and usage rules that name tokens |
+| [system/components/](system/components/) | `bundle.js`, `bundle.css`, `index.d.ts`, and a README and live preview per component |
+| [system/assets/Logos/](system/assets/Logos/) | `wkx-mark.svg`, the mark and favicon |
+| [system/design-system.json](system/design-system.json) | The index the Claude artifact reads |
+
+### Changing it
+
+Change the files in `system/`, then:
+
+```sh
+python3 scripts/wkx.py build       # regenerate system/tokens.css
+python3 scripts/wkx.py check       # tokens.css is current; Namespace matches the tokens
+python3 -m unittest discover -s tests
+```
+
+### WKX in Claude
+
+The system is published to Claude as the **WKX** Design System artifact:
+<https://claude.ai/artifact/MMMcptPJx2svx85wF4FKXH>. To design or build an app
+in the WKX look, ask Claude to use the WKX design system.
+
+The artifact is a read-only copy. Its index carries `"editing": "code"`, so its
+page says it is synced from code and takes no edits. Publishing goes one way,
+from this repo to Claude. After a change lands on `main`, ask Claude Code to
+publish `system/` to the WKX artifact. Each file in `system/` is published at
+`project/<same path>`, with these exceptions:
+
+- `wkx-mark.svg` stays an uploaded asset. It is re-uploaded only when it
+  changes, and then its record in `design-system.json` gets the new blob id.
+- `design-system.json` goes last. It is re-read from the artifact first, so
+  that no keys are lost.
 
 ## Namespace: the reference console
 
@@ -39,8 +71,11 @@ Namespace at a glance:
 - **The layout is fluid.** The console takes the whole screen, panels share
   rows as the screen grows, and prose stays capped inside panels.
 
-Its colours match the WKX tokens, including the darker Day values that keep
-all text at 4.5:1 contrast or better.
+Namespace keeps its own CSS variable names, which use platform vocabulary
+(`--add`, `--chg`, `--del`). Each one mirrors a WKX token, including the darker
+Day values that keep all text at 4.5:1 contrast or better. `scripts/wkx.py
+check` fails if any Namespace value drifts from the token it mirrors. The
+mapping is `NAMESPACE_COLOURS` in [scripts/wkx.py](scripts/wkx.py).
 
 ### Viewing
 

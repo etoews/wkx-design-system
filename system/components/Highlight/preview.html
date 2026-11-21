@@ -1,0 +1,17 @@
+<!-- @dsCard group="Interaction" height=120 -->
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><title>preview</title>
+<style>html,body{margin:0;background:var(--ground);} #root{padding:1.3rem;}</style>
+</head>
+<body>
+<div id="root" class="wkx-root"></div>
+<script>
+  var W = window.WKX, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    h('div', { className: 'wkx-stack', style: { fontSize: '.9rem', maxWidth: '34rem' } },
+      h(W.Hint, null, 'Hover or focus a dotted word to light up its every appearance. Click to pin, Esc to release.'),
+      h('p', { style: { margin: 0 } }, h(W.Highlight, { term: 'api' }, 'api'), ' runs in ', h(W.Highlight, { term: 'prod' }, 'prod'), '; its edge is ', h(W.Highlight, { term: 'edge' }, 'edge'), '-', h(W.Highlight, { term: 'prod' }, 'prod'), ', and the last ', h(W.Highlight, { term: 'api' }, 'api'), ' deploy was e7d09b4.')));
+</script>
+</body>
+</html>
