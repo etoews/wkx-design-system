@@ -1,33 +1,51 @@
 # wkx-design-system
 
-The look and feel of every WKX app, and Namespace, the operational console of
-[wkx-platform](../wkx-platform/) that it grew out of.
+The WKX design system: the look and feel of every WKX app.
 
-## The design system
+It covers visual language only. That means colour tokens for the Night and Day
+themes, type, spacing, radii, glows, 13 components with live previews, and a
+brand book. It carries no domain vocabulary. Each app supplies its own words.
 
-[system/](system/) is the WKX design system and its source of truth. It covers
-visual language only: colour tokens for the Night and Day themes, type,
-spacing, radii, glows, 13 components with live previews, and a brand book. It
-carries no domain vocabulary. Each app supplies its own words.
+## Viewing it
+
+[index.html](index.html) is a local copy of the WKX artifact in Claude: the
+brand book, every token in both themes, and a live preview of each component.
+It is also served at <https://etoews.github.io/wkx-design-system/>. Locally,
+serve the folder:
+
+```sh
+python3 -m http.server
+```
+
+The component previews load React 18 from jsDelivr, as they do in the
+artifact. The rest of the page is local.
+
+## Where it lives
+
+[system/](system/) is the source of truth. Everything else is generated from it
+or published from it.
 
 | Path | What |
 | --- | --- |
 | [system/tokens.json](system/tokens.json) | Every token. The one source for every value |
-| [system/tokens.css](system/tokens.css) | Generated from `tokens.json`. Never edit it by hand |
 | [system/README.md](system/README.md) | The brand book: principles and usage rules that name tokens |
 | [system/components/](system/components/) | `bundle.js`, `bundle.css`, `index.d.ts`, and a README and live preview per component |
 | [system/assets/Logos/](system/assets/Logos/) | `wkx-mark.svg`, the mark and favicon |
 | [system/design-system.json](system/design-system.json) | The index the Claude artifact reads |
+| [system/tokens.css](system/tokens.css) | Generated from `tokens.json` |
+| [index.html](index.html) | Generated from `system/` |
 
 ### Changing it
 
 Change the files in `system/`, then:
 
 ```sh
-python3 scripts/wkx.py build       # regenerate system/tokens.css
-python3 scripts/wkx.py check       # tokens.css is current; Namespace matches the tokens
+python3 scripts/wkx.py build       # regenerate system/tokens.css and index.html
+python3 scripts/wkx.py check       # both generated files are current
 python3 -m unittest discover -s tests
 ```
+
+CI runs `check` and the tests on every push and pull request.
 
 ### WKX in Claude
 
@@ -36,62 +54,21 @@ The system is published to Claude as the **WKX** Design System artifact:
 in the WKX look, ask Claude to use the WKX design system.
 
 The artifact is a read-only copy. Its index carries `"editing": "code"`, so its
-page says it is synced from code and takes no edits. Publishing goes one way,
-from this repo to Claude. After a change lands on `main`, ask Claude Code to
-publish `system/` to the WKX artifact. Each file in `system/` is published at
-`project/<same path>`, with these exceptions:
+page says it is synced from code and takes no edits.
 
-- `wkx-mark.svg` stays an uploaded asset. It is re-uploaded only when it
-  changes, and then its record in `design-system.json` gets the new blob id.
-- `design-system.json` goes last. It is re-read from the artifact first, so
-  that no keys are lost.
+Publishing is automatic and goes one way, from `main` to Claude. Only Claude
+Code can write to the artifact, so publishing runs there, not in CI. A project
+hook ([.claude/settings.json](.claude/settings.json)) runs after every
+`git push` from `main`, and again at session start. When `system/` has commits
+that are not yet published, the hook tells Claude to publish them.
+[CLAUDE.md](CLAUDE.md) has the procedure. The local git tag
+`artifact-published` marks the commit the artifact was last published from.
 
-## Namespace: the reference console
+## Apps built with WKX
 
-[index.html](index.html) is Namespace, the console for wkx-platform, a personal
-Docker Compose platform running in two homes: AWS (public-facing) and an
-on-prem home server (LAN-only). It is the WKX look applied with wkx-platform's
-vocabulary. It is one self-contained page of static HTML and JS, with no build
-step and no external requests.
-
-Namespace at a glance:
-
-- **Panels are addressed by path.** Every panel is addressed by its path
-  (`/wkx/<service>/<env>`), and the two Hosts appear as env groups (`env=prod`,
-  `env=home`).
-- **Status uses the platform glossary.** States are up / stabilising / down,
-  with plan symbols `+ ~ −`, plus unlit for reserved namespaces.
-  Source-system states (CloudWatch ALARM) are always shown verbatim beside the
-  operator's reading, never softened.
-- **Terms light up everywhere.** Any token of the ubiquitous language lights up
-  wherever else it appears: hover or focus to find, click to pin, Esc to
-  release.
-- **Light and dark schemes** follow the system setting, with an auto / light /
-  dark override in the nav persisted in localStorage.
-- **The layout is fluid.** The console takes the whole screen, panels share
-  rows as the screen grows, and prose stays capped inside panels.
-
-Namespace keeps its own CSS variable names, which use platform vocabulary
-(`--add`, `--chg`, `--del`). Each one mirrors a WKX token, including the darker
-Day values that keep all text at 4.5:1 contrast or better. `scripts/wkx.py
-check` fails if any Namespace value drifts from the token it mirrors. The
-mapping is `NAMESPACE_COLOURS` in [scripts/wkx.py](scripts/wkx.py).
-
-### Viewing
-
-Open [index.html](index.html) directly in a browser, or serve the folder:
-
-```sh
-python3 -m http.server
-```
-
-Typefaces are macOS system stacks (Avenir Next, Menlo, SF Mono) with standard
-fallbacks elsewhere. The page respects `prefers-reduced-motion`, keeps visible
-keyboard focus, and holds up down to mobile widths.
-
-## Provenance
-
-Namespace was chosen from four explored directions (Red Ledger, Harbour Watch,
-Namespace v0, and this one); the rejected options live in git history. The
-status vocabulary is canonical in wkx-platform's `CONTEXT.md` under
-"Operational status".
+- [wkx-ecosystem-localhost](../wkx-ecosystem-localhost/) is a local dashboard
+  of the WKX ecosystem. It consumes the design system by adaptation. Its own
+  stylesheet vendors the WKX palette, type stacks and panel idiom, and it
+  diverges where its board needs to: a tinted panel and a `--sky` wayfinding
+  colour. It vendors an earlier copy, so its variables do not track
+  `system/tokens.json`.
