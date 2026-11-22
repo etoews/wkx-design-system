@@ -567,6 +567,12 @@ PUBLISHED_TAG = "artifact-published"
 STAGE = ROOT / ".publish"
 # Uploaded to the artifact's asset store, not published as files.
 ASSET_SUFFIXES = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm", ".pdf"}
+# Extensions the artifact serves by type. Any other text file (index.d.ts) must
+# name its type, or the Artifact tool refuses the whole publish.
+SERVED_SUFFIXES = {
+    ".html", ".css", ".js", ".mjs", ".json", ".map", ".txt", ".md", ".csv", ".xml",
+    ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".woff", ".woff2", ".ttf", ".otf",
+}
 
 
 def _git(*args: str) -> str:
@@ -607,7 +613,7 @@ def publish_plan() -> int:
     if STAGE.exists():
         shutil.rmtree(STAGE)
     head = _git("rev-parse", "--short", "HEAD")
-    files: dict[str, str | None] = {}
+    files: dict[str, str | dict | None] = {}
     uploads = []
     for path, state in sorted(pending.items()):
         rel = path.removeprefix("system/")
@@ -624,7 +630,10 @@ def publish_plan() -> int:
             target.write_bytes(subprocess.run(
                 ["git", "show", f"HEAD:{path}"], cwd=ROOT, check=True, capture_output=True
             ).stdout)
-            files[served] = served
+            if Path(rel).suffix.lower() in SERVED_SUFFIXES:
+                files[served] = served
+            else:
+                files[served] = {"from": served, "contentType": "text/plain"}
 
     # The index, from HEAD, with lastChange naming this publish.
     index = json.loads(_git("show", "HEAD:system/design-system.json"))

@@ -174,6 +174,17 @@ class PublishTest(unittest.TestCase):
         files = self.plan()["artifact"]["files"]
         self.assertEqual(files, {"project/README.md": "project/README.md", "project/tokens.json": None})
 
+    def test_unserved_extensions_name_their_type(self):
+        (self.root / "system" / "components").mkdir()
+        self.write("system/components/index.d.ts", "export {};")
+        self.commit("types")
+        files = self.plan()["artifact"]["files"]
+        self.assertEqual(
+            files["project/components/index.d.ts"],
+            {"from": "project/components/index.d.ts", "contentType": "text/plain"},
+        )
+        self.assertEqual(files["project/README.md"], "project/README.md")
+
     def test_uncommitted_edits_are_not_published(self):
         self.write("system/README.md", "Not committed.")
         staged = self.root / ".publish/project/README.md"
