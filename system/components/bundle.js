@@ -14,7 +14,6 @@
     for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k) && keys.indexOf(k) < 0) out[k] = obj[k];
     return out;
   }
-  var SYMBOL = { good: "+", caution: "~", danger: "−", off: "·" };
 
   function Button(props) {
     var variant = props.variant || "default";
@@ -32,11 +31,6 @@
       role: "img",
       "aria-label": label
     });
-  }
-
-  function StatusSymbol(props) {
-    var status = props.status || "good";
-    return h("span", { className: "wkx-sym wkx-sym-" + status, "aria-hidden": "true" }, SYMBOL[status]);
   }
 
   function SectionLabel(props) {
@@ -160,10 +154,7 @@
       items.map(function (it, i) {
         return h("span", { key: i, className: "wkx-legend-item" },
           h("span", { className: cx("wkx-light", it.status !== "good" && "wkx-light-" + it.status), "aria-hidden": "true" }),
-          h("span", null,
-            it.status !== "off" ? h(StatusSymbol, { status: it.status }) : null,
-            it.status !== "off" ? " · " : null,
-            h("b", null, it.term), it.meaning ? ", " + it.meaning : null));
+          h("span", null, h("b", null, it.term), it.meaning ? ", " + it.meaning : null));
       }));
   }
 
@@ -221,7 +212,7 @@
   }
 
   window.WKX = Object.assign(window.WKX || {}, {
-    Button: Button, StatusLight: StatusLight, Symbol: StatusSymbol, SectionLabel: SectionLabel,
+    Button: Button, StatusLight: StatusLight, SectionLabel: SectionLabel,
     Panel: Panel, Gauge: Gauge, Meter: Meter, DataTable: DataTable, ListRow: ListRow,
     Field: Field, Highlight: Highlight, Hint: Hint, Legend: Legend, LogView: LogView,
     ThemeToggle: ThemeToggle

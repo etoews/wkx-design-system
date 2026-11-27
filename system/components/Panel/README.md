@@ -8,4 +8,4 @@ The container for one job on a page: `surface` fill, a 1px `line` border, 6px co
 
 **Consumer provides** children, and `label` or `title`.
 
-**Don't** nest panels, add shadows, or colour a panel's border by status: status lives in lights and symbols.
+**Don't** nest panels, add shadows, or colour a panel's border by status: status lives in lights and words.

@@ -6,4 +6,4 @@ An 11px lit disc that shows state at a glance: good, caution, danger or off.
 
 **Consumer provides** `status` and an accessible `label` naming the state in the app's own words (it defaults to the status name).
 
-**Always** pair a light with a word or a symbol (`WKX.Symbol`: `+ ~ −`) nearby. Green and red differ by hue more than lightness, so the light alone is not enough for colour-blind readers.
+**Always** pair a light with a word nearby. Green and red differ by hue more than lightness, so the light alone is not enough for colour-blind readers.

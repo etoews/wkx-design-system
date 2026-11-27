@@ -54,12 +54,6 @@
 }
 @media (prefers-reduced-motion: reduce) { .wkx-light { animation: none !important; } }
 
-/* ---------- Symbol (+ ~ −) ---------- */
-.wkx-sym { font-family: var(--font-mono); font-weight: 700; }
-.wkx-sym-good { color: var(--accent); }
-.wkx-sym-caution { color: var(--caution); }
-.wkx-sym-danger { color: var(--danger); }
-
 /* ---------- SectionLabel ---------- */
 .wkx-label {
   margin: 0;

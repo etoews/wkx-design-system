@@ -24,8 +24,8 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 - Put text in `ink` on `ground`, `surface` or `surface-raised`, and in `ink-muted` on any of them.
 - Use `ink-strong` sparingly: one headline per page, plus the big figures.
 - Spend `accent` once per view on a fill (the primary button). It can appear any number of times as a small status mark.
-- Never encode state by colour alone. Every status carries a word or a symbol: **+** good, **~** caution, **−** danger, **·** off/none. Green and red differ mainly by hue, so the symbol does the work for colour-blind readers.
-- Show a source system's raw state verbatim beside your reading of it, e.g. "Source: ALARM. Status: ~ settling". Don't soften it.
+- Never encode state by colour alone. Every status carries a word in the app's vocabulary beside its light or tone. Green and red differ mainly by hue, so the word does the work for colour-blind readers.
+- Show a source system's raw state verbatim beside your reading of it, e.g. "Source: ALARM. Status: settling". Don't soften it.
 - **Contrast:** every text token clears 4.5:1 on `ground` and `surface` in both themes, and `ink-muted` also on `surface-raised`. Keep `accent`, `caution` and `danger` text off `surface-raised` unless it is 19px bold or larger.
 
 ## Type
@@ -60,4 +60,4 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 
 ## Iconography
 
-None. WKX uses no icon set and no emoji. State is shown with status lights and the `+ ~ −` symbols in mono bold, and structure with hairlines and signage. The only mark is `assets/Logos/wkx-mark.svg`, which is also the favicon.
+State is shown with status lights and words, and structure with hairlines and signage. The only mark is `assets/Logos/wkx-mark.svg`, which is also the favicon.

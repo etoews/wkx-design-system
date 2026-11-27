@@ -8,7 +8,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: "default" | "small";
 }
 export interface StatusLightProps { status?: Status; /** State in the app's words; defaults to status. */ label?: string; }
-export interface SymbolProps { /** + ~ − or · */ status?: Status; }
 export interface SectionLabelProps { /** Mono identifier ahead of the label. */ code?: string; children?: React.ReactNode; }
 export interface PanelProps {
   label?: string; labelCode?: string;
