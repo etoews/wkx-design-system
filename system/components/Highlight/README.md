@@ -6,4 +6,4 @@ Cross-reference highlighting: a dotted underline marks a term; hovering or focus
 
 **Consumer provides** the visible text as children and a `term` key when several spellings should light together.
 
-**Don't** mark ordinary words, or use `highlight` for anything but this.
+**Don't** mark ordinary words. `highlight` also marks filter matches in `DataTable`; keep it to marking what the reader is looking for.

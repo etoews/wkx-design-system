@@ -2,7 +2,7 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 
 ## Principles
 
-- **Colour is signal.** Neutrals carry the page. `accent`, `caution` and `danger` appear only where something has a state or an action. `highlight` is used only for cross-reference highlighting.
+- **Colour is signal.** Neutrals carry the page. `accent`, `caution` and `danger` appear only where something has a state or an action. `highlight` marks what the reader is looking for: cross-referenced terms and filter matches.
 - **Hairlines, not shadows.** Structure is 1px `line` borders and dividers on flat `surface` panels. The only shadows are the glows on status lights and highlighted terms.
 - **Three voices of type.** Condensed uppercase for signage (labels, buttons, column heads), sans for prose, mono for anything a machine would recognise: identifiers, paths, numbers, times, commands.
 - **Fluid, not boxed.** The page takes the whole screen. Panels share rows as the screen widens, but prose stays capped inside them (`prose-max`).
@@ -19,7 +19,7 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 | Accent and good | `accent`, `accent-hover`, `on-accent` | Primary buttons, links, healthy states, meter fills |
 | Caution | `caution` | Attention without action; the focus ring |
 | Danger | `danger`, `danger-tint` | Failure and destructive actions |
-| Highlight | `highlight`, `on-highlight` | Cross-reference highlighting and the hint chip |
+| Highlight | `highlight`, `on-highlight` | Cross-reference highlighting, filter matches and the hint chip |
 
 - Put text in `ink` on `ground`, `surface` or `surface-raised`, and in `ink-muted` on any of them.
 - Use `ink-strong` sparingly: one headline per page, plus the big figures.
@@ -42,7 +42,7 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 - **Panel:** `space-4` padding on top and `space-5` on the sides and bottom. Grid gap `space-6`; between major sections `space-7`.
 - **Inside rows:** `space-1` from label to control, `space-2` for tight pairs, `space-3` between columns.
 - **Grid:** two columns, stacking below `breakpoint-stack` (860px). From `breakpoint-wide` (1500px), half panels share a six-column row; from 2100px, small panels go three-up.
-- **Radii:** `radius-lg` for panels and legends, `radius-md` for controls and wells, `radius-sm` for meters, `radius-xs` for highlighted terms, `radius-pill` for pill controls (the table filter), and `radius-full` only for status lights. A panel with a top rule (`border-rule`) keeps its top corners square.
+- **Radii:** `radius-lg` for panels and legends, `radius-md` for controls and wells, `radius-sm` for meters, `radius-xs` for highlighted terms and filter matches, `radius-pill` for pill controls (the table filter and columns menu), and `radius-full` only for status lights. A panel with a top rule (`border-rule`) keeps its top corners square.
 
 ## Page anatomy
 

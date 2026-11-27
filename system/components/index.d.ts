@@ -20,8 +20,8 @@ export interface MeterProps { /** 0–100 */ value: number; /** 0–100, tick po
 export interface GaugeProps { label: string; value: string; unit?: string; detail?: string; percent?: number; threshold?: number; tone?: Tone; }
 type TableSort = { key: string; dir: "ascending" | "descending" } | null;
 export interface DataTableProps {
-  /** num: right-aligned, sorts as a number. sortable: false keeps one column fixed. */
-  columns: { key: string; label: string; num?: boolean; sortable?: boolean }[];
+  /** num: right-aligned, sorts as a number. sortable: false keeps one column unsorted. locked: the columns menu can't hide it. */
+  columns: { key: string; label: string; num?: boolean; sortable?: boolean; locked?: boolean }[];
   /** sorts: a value to sort by in place of the cell; search: the text the filter reads, for cells that are not plain text. */
   rows: ({ id?: string | number; tones?: Record<string, Tone | "muted">; sorts?: Record<string, string | number>; search?: string } & Record<string, React.ReactNode>)[];
   caption?: string;
@@ -29,6 +29,10 @@ export interface DataTableProps {
   sortable?: boolean; sort?: TableSort; defaultSort?: TableSort; onSortChange?: (sort: TableSort) => void;
   /** A filter pill above the table, with an "N of M" count to its left. */
   filterable?: boolean; filter?: string; defaultFilter?: string; onFilterChange?: (text: string) => void; filterLabel?: string;
+  /** A columns menu right of the filter; hidden lists the keys of hidden columns. */
+  hideable?: boolean; hidden?: string[]; defaultHidden?: string[]; onHiddenChange?: (hidden: string[]) => void;
+  /** Offset for the sticky column heads, under a fixed page header (a CSS length). */
+  stickyTop?: string;
 }
 export interface ListRowProps { status?: Status; statusLabel?: string; name: React.ReactNode; detail?: React.ReactNode; stat?: React.ReactNode; }
 export interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> { label: string; id?: string; }

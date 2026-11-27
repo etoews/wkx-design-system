@@ -1,4 +1,4 @@
-<!-- @dsCard group="Data" height=400 -->
+<!-- @dsCard group="Data" height=420 -->
 <!doctype html>
 <html lang="en-NZ">
 <head><meta charset="utf-8"><title>preview</title>
@@ -15,9 +15,9 @@
   ReactDOM.createRoot(document.getElementById('root')).render(
     h(W.Panel, { label: 'deploys', labelCode: '/acme/*/prod' },
       h(W.DataTable, {
-        sortable: true, filterable: true, filterLabel: 'Filter deploys',
+        sortable: true, filterable: true, hideable: true, filterLabel: 'Filter deploys',
         defaultSort: { key: 'time', dir: 'descending' },
-        columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service' }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'took', label: 'Took', num: true }],
+        columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service', locked: true }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'took', label: 'Took', num: true }],
         rows: [
           row(1, '18 Jul 14:32', '07-18 14:32', 'api · prod', 'e7d09b4', 'deployed', 'good', '1 m 48 s', 108),
           row(2, '17 Jul 19:08', '07-17 19:08', 'api · prod', '9c21f77 → a3f91c2', 'rolled back', 'danger', '42 s', 42),

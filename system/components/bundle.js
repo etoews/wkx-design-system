@@ -118,32 +118,94 @@
     }];
   }
 
+  /* Wrap each case-insensitive occurrence of query in a plain-text cell. */
+  function marked(value, query) {
+    if (!query || (typeof value !== "string" && typeof value !== "number")) return value;
+    var text = String(value), lower = text.toLowerCase(), out = [], at = 0, i;
+    while ((i = lower.indexOf(query, at)) >= 0) {
+      if (i > at) out.push(text.slice(at, i));
+      out.push(h("mark", { key: i, className: "wkx-match" }, text.slice(i, i + query.length)));
+      at = i + query.length;
+    }
+    if (!out.length) return value;
+    if (at < text.length) out.push(text.slice(at));
+    return out;
+  }
+
+  /* The columns menu: a pill that drops a checklist of the table's columns.
+     Locked columns stay checked; the last visible column can't be hidden.
+     Closes on a click outside or Escape, which hands focus back to the pill. */
+  function ColumnsMenu(props) {
+    var open = React.useState(false);
+    var ref = React.useRef(null), btn = React.useRef(null);
+    var isOpen = open[0], setOpen = open[1];
+    React.useEffect(function () {
+      if (!isOpen) return undefined;
+      function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+      function onKey(e) { if (e.key === "Escape") { setOpen(false); if (btn.current) btn.current.focus(); } }
+      document.addEventListener("mousedown", onClick);
+      document.addEventListener("keydown", onKey);
+      return function () {
+        document.removeEventListener("mousedown", onClick);
+        document.removeEventListener("keydown", onKey);
+      };
+    }, [isOpen]);
+    var hidden = props.hidden;
+    var visible = props.columns.filter(function (c) { return hidden.indexOf(c.key) < 0; }).length;
+    return h("div", { className: "wkx-cols", ref: ref },
+      h("button", {
+        type: "button", ref: btn, className: "wkx-pill wkx-cols-btn",
+        "aria-expanded": isOpen ? "true" : "false", "aria-haspopup": "true",
+        onClick: function () { setOpen(!isOpen); }
+      }, "columns", h("span", { className: "wkx-cols-caret", "aria-hidden": "true" }, "▾")),
+      isOpen ? h("div", { className: "wkx-cols-menu", role: "group", "aria-label": "Columns" },
+        props.columns.map(function (c) {
+          var shown = hidden.indexOf(c.key) < 0;
+          var fixed = c.locked || (shown && visible === 1);
+          return h("label", { key: c.key, className: cx("wkx-cols-item", fixed && "wkx-cols-fixed") },
+            h("input", {
+              type: "checkbox", checked: shown, disabled: fixed,
+              onChange: function () {
+                props.onChange(shown ? hidden.concat([c.key]) : hidden.filter(function (k) { return k !== c.key; }));
+              }
+            }),
+            h("span", { className: "wkx-cols-label" }, c.label),
+            c.locked ? h("span", { className: "wkx-cols-note" }, "locked") : null);
+        })) : null);
+  }
+
   function DataTable(props) {
-    var columns = props.columns || [];
+    var all = props.columns || [];
     var rows = props.rows || [];
     var sortState = useControlled(props.sort, props.defaultSort || null, props.onSortChange);
     var filterState = useControlled(props.filter, props.defaultFilter || "", props.onFilterChange);
+    var hiddenState = useControlled(props.hidden, props.defaultHidden || [], props.onHiddenChange);
     var sort = sortState[0], filter = filterState[0];
+    var hidden = props.hideable ? hiddenState[0] || [] : [];
+    var columns = all.filter(function (c) { return hidden.indexOf(c.key) < 0; });
     var query = props.filterable ? filter.trim().toLowerCase() : "";
+    /* A hidden column is outside the filter's reach. */
     var shown = query ? rows.filter(function (r) {
       var text = r.search != null ? String(r.search) : columns.map(function (c) { return cellText(r, c.key); }).join(" ");
       return text.toLowerCase().indexOf(query) >= 0;
     }) : rows;
     shown = props.sortable ? sortRows(shown, sort) : shown;
 
-    var toolbar = props.filterable ? h("div", { className: "wkx-table-tools" },
-      h("span", { className: "wkx-table-count", "aria-live": "polite" }, filter ? shown.length + " of " + rows.length : ""),
-      h("input", {
-        type: "search", className: "wkx-table-filter", placeholder: "filter…",
+    var tools = props.filterable || props.hideable ? h("div", { className: "wkx-table-tools" },
+      props.filterable ? h("span", { className: "wkx-table-count", "aria-live": "polite" }, filter ? shown.length + " of " + rows.length : "") : null,
+      props.filterable ? h("input", {
+        type: "search", className: "wkx-pill wkx-table-filter", placeholder: "filter…",
         "aria-label": props.filterLabel || "Filter " + (props.caption || "rows"),
         value: filter, onChange: function (e) { filterState[1](e.target.value); }
-      })) : null;
+      }) : null,
+      props.hideable ? h(ColumnsMenu, { columns: all, hidden: hidden, onChange: hiddenState[1] }) : null) : null;
 
+    var top = props.stickyTop != null ? { top: props.stickyTop } : undefined;
     function head(c) {
       var align = c.num ? "wkx-num" : undefined;
-      if (!props.sortable || c.sortable === false) return h("th", { key: c.key, scope: "col", className: align }, c.label);
+      if (!props.sortable || c.sortable === false) return h("th", { key: c.key, scope: "col", className: align, style: top }, c.label);
       var dir = sort && sort.key === c.key ? sort.dir : null;
-      return h("th", { key: c.key, scope: "col", className: align, "aria-sort": dir || undefined },
+      return h("th", { key: c.key, scope: "col", className: align, style: top, "aria-sort": dir || undefined },
         h("button", {
           type: "button", className: cx("wkx-sort", dir && "wkx-sort-on"),
           onClick: function () { sortState[1](nextSort(sort, c.key)); }
@@ -151,7 +213,7 @@
     }
 
     return h("div", { className: cx("wkx-table-block", props.className) },
-      toolbar,
+      tools,
       h("div", { className: "wkx-table-wrap" },
         h("table", { className: "wkx-table" },
           props.caption ? h("caption", { className: "wkx-label", style: { marginBottom: ".8rem" } }, props.caption) : null,
@@ -159,9 +221,9 @@
           h("tbody", null, shown.length || !query ? shown.map(function (r, i) {
             return h("tr", { key: r.id != null ? r.id : i }, columns.map(function (c) {
               var tone = r.tones && r.tones[c.key];
-              return h("td", { key: c.key, className: cx(tone && "wkx-cell-" + tone, c.num && "wkx-num") || undefined }, r[c.key]);
+              return h("td", { key: c.key, className: cx(tone && "wkx-cell-" + tone, c.num && "wkx-num") || undefined }, marked(r[c.key], query));
             }));
-          }) : h("tr", null, h("td", { colSpan: columns.length || 1, className: "wkx-cell-muted" }, "No rows match \u201c" + filter.trim() + "\u201d."))))));
+          }) : h("tr", null, h("td", { colSpan: columns.length || 1, className: "wkx-cell-muted" }, "No rows match “" + filter.trim() + "”."))))));
   }
 
   function ListRow(props) {
