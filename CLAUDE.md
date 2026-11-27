@@ -42,8 +42,6 @@ tool's read action and a `path`. The rules that bite most often:
 - `bundle.js` is one classic script assigning `window.WKX`. It reads
   `window.React`; it has no imports, no network calls and no literal
   `</script`.
-- No icon set and no emoji. State is shown with status lights and the
-  `+ ~ −` symbols.
 
 ## Workflow
 
