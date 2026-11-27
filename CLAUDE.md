@@ -62,23 +62,29 @@ and at session start. Act on it without asking.
 
 1. On `main`, run `python3 scripts/wkx.py publish-plan`. It stages the changed
    files from `HEAD` under `.publish/` (gitignored). It prints JSON with the
-   Artifact call and any `uploads_first`. `"publish": false` means there is
-   nothing to do.
+   publish call (`artifact`), any `uploads_first`, and the read to make first
+   (`read_first`). `"publish": false` means there is nothing to do.
 2. If `uploads_first` lists files (images under `system/assets/`), upload each
    one to the artifact (Artifact publish with `url`, `file_path`,
    `asset: true`). Put the returned blob id, size and type in that file's
    record under `assetGroups` in `system/design-system.json`. Commit to `main`,
    push, and start again at step 1.
-3. Read `project/design-system.json` from the artifact (Artifact read with a
-   `path`). If anything other than `lastChange` differs from
-   `system/design-system.json`, someone changed the artifact. Stop and tell the
-   user. Do not overwrite it.
-4. Make the Artifact call exactly as printed: `url`, `root`, `file_path` (the
+3. Make the `read_first` call exactly as printed: Artifact read with `url`,
+   `paths` and `out_dir`. It saves the artifact's current copy of every file
+   the publish replaces or removes, the index included, under
+   `.publish-live/`. The Artifact tool refuses to overwrite a file this
+   session has not read, so skipping this step fails the publish.
+4. Run `python3 scripts/wkx.py verify-live`. It compares those copies with
+   the commit the `artifact-published` tag marks (the index without
+   `lastChange`). If it fails, someone changed the artifact. Stop and tell the
+   user what it printed. Do not publish, and never pass `force` or
+   `overwrite_unread`.
+5. Make the `artifact` call exactly as printed: `url`, `root`, `file_path` (the
    index, which goes last, in the same call) and `files` (`null` removes a
    file).
-5. When the call succeeds, run `python3 scripts/wkx.py mark-published`. If it
+6. When the call succeeds, run `python3 scripts/wkx.py mark-published`. If it
    fails, do not move the tag. Report the error.
-6. Tell the user what was published, including the version the Artifact tool
+7. Tell the user what was published, including the version the Artifact tool
    returned.
 
 Never publish from a branch. The artifact mirrors `main`.

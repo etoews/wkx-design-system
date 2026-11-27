@@ -110,6 +110,7 @@ class PublishTest(unittest.TestCase):
         self.patches = [
             mock.patch.object(wkx, "ROOT", self.root),
             mock.patch.object(wkx, "STAGE", self.root / ".publish"),
+            mock.patch.object(wkx, "LIVE", self.root / ".publish-live"),
         ]
         for p in self.patches:
             p.start()
@@ -173,6 +174,79 @@ class PublishTest(unittest.TestCase):
         self.commit("revise the book")
         files = self.plan()["artifact"]["files"]
         self.assertEqual(files, {"project/README.md": "project/README.md", "project/tokens.json": None})
+
+    def publish_and_revise(self):
+        """Mark the first commit published, then change README and delete tokens."""
+        with redirect_stdout(io.StringIO()):
+            wkx.mark_published()
+        self.write("system/README.md", "Book, revised.")
+        (self.root / "system/tokens.json").unlink()
+        self.commit("revise the book")
+
+    def live(self, served, text):
+        path = self.root / ".publish-live" / served
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def verify(self):
+        err = io.StringIO()
+        with redirect_stdout(io.StringIO()), mock.patch("sys.stderr", err):
+            code = wkx.verify_live()
+        return code, err.getvalue()
+
+    def test_plan_reads_back_every_file_it_replaces_or_removes(self):
+        self.publish_and_revise()
+        read = self.plan()["read_first"]
+        self.assertEqual(read["action"], "read")
+        self.assertEqual(read["url"], wkx.ARTIFACT_URL)
+        self.assertEqual(read["paths"], ["project/README.md", "project/design-system.json", "project/tokens.json"])
+        self.assertEqual(read["out_dir"], str(self.root / ".publish-live"))
+
+    def test_plan_does_not_read_asset_uploads(self):
+        self.assertNotIn("project/assets/Logos/mark.svg", self.plan()["read_first"]["paths"])
+
+    def test_verify_passes_when_the_artifact_matches_the_last_publish(self):
+        self.publish_and_revise()
+        self.plan()
+        self.live("project/README.md", "Book.")
+        self.live("project/tokens.json", "{}")
+        self.live("project/design-system.json", '{"v": 3, "title": "WKX", "lastChange": {"by": "someone"}}')
+        self.assertEqual(self.verify(), (0, ""))
+
+    def test_verify_fails_when_someone_edited_the_artifact(self):
+        self.publish_and_revise()
+        self.plan()
+        self.live("project/README.md", "Book, edited on the artifact.")
+        self.live("project/tokens.json", "{}")
+        self.live("project/design-system.json", '{"v": 3, "title": "Renamed"}')
+        code, err = self.verify()
+        self.assertEqual(code, 1)
+        self.assertIn("project/README.md: differs", err)
+        self.assertIn("project/design-system.json: differs", err)
+
+    def test_verify_fails_when_a_file_was_not_read(self):
+        self.publish_and_revise()
+        self.plan()
+        self.live("project/design-system.json", '{"v": 3, "title": "WKX"}')
+        code, err = self.verify()
+        self.assertEqual(code, 1)
+        self.assertIn("project/README.md: not read", err)
+
+    def test_verify_accepts_a_new_file_the_artifact_lacks(self):
+        self.publish_and_revise()
+        self.write("system/NEW.md", "New.")
+        self.commit("add a section")
+        self.plan()
+        self.live("project/README.md", "Book.")
+        self.live("project/tokens.json", "{}")
+        self.live("project/design-system.json", '{"v": 3, "title": "WKX"}')
+        self.assertEqual(self.verify(), (0, ""))
+
+    def test_mark_published_clears_the_live_copies(self):
+        self.live("project/README.md", "Book.")
+        with redirect_stdout(io.StringIO()):
+            wkx.mark_published()
+        self.assertFalse((self.root / ".publish-live").exists())
 
     def test_unserved_extensions_name_their_type(self):
         (self.root / "system" / "components").mkdir()

@@ -3,8 +3,9 @@
 
     python3 scripts/wkx.py build           # write system/tokens.css and index.html from system/
     python3 scripts/wkx.py check           # fail if either generated file is stale
-    python3 scripts/wkx.py publish-plan    # stage unpublished system/ changes; print the Artifact call
-    python3 scripts/wkx.py mark-published  # after that call succeeds: tag HEAD as published
+    python3 scripts/wkx.py publish-plan    # stage unpublished system/ changes; print the Artifact calls
+    python3 scripts/wkx.py verify-live     # fail if the artifact's copies differ from the last publish
+    python3 scripts/wkx.py mark-published  # after the publish succeeds: tag HEAD as published
     python3 scripts/wkx.py hook            # Claude Code hook: remind Claude to publish
 
 system/tokens.json is the one source for every token. tokens.css is generated
@@ -565,6 +566,11 @@ def check() -> int:
 
 PUBLISHED_TAG = "artifact-published"
 STAGE = ROOT / ".publish"
+# The artifact's current copies of the files a publish touches, read back
+# before publishing. The Artifact tool refuses to overwrite a file this session
+# has not read, and comparing them shows whether anyone edited the artifact.
+LIVE = ROOT / ".publish-live"
+INDEX = "project/design-system.json"
 # Uploaded to the artifact's asset store, not published as files.
 ASSET_SUFFIXES = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".webm", ".pdf"}
 # Extensions the artifact serves by type. Any other text file (index.d.ts) must
@@ -600,6 +606,65 @@ def pending_changes() -> dict[str, str]:
     return out
 
 
+def _served(path: str) -> str:
+    return "project/" + path.removeprefix("system/")
+
+
+def _is_upload(path: str) -> bool:
+    rel = path.removeprefix("system/")
+    return rel.startswith("assets/") and Path(rel).suffix.lower() in ASSET_SUFFIXES
+
+
+def read_first(pending: dict[str, str]) -> list[str]:
+    """Artifact paths the publish replaces or removes: each must be read before it."""
+    return sorted({_served(p) for p in pending if not _is_upload(p)} | {INDEX})
+
+
+def _published_bytes(base: str | None, path: str) -> bytes | None:
+    if base is None:
+        return None
+    out = subprocess.run(["git", "show", f"{base}:{path}"], cwd=ROOT, capture_output=True)
+    return out.stdout if out.returncode == 0 else None
+
+
+def _without_last_change(raw: bytes) -> dict:
+    index = json.loads(raw)
+    index.pop("lastChange", None)
+    return index
+
+
+def verify_live() -> int:
+    """Compare the artifact's copies under LIVE with what was last published from here.
+
+    A difference means someone changed the artifact outside this repo; publishing
+    would overwrite their work. The index is compared without lastChange.
+    """
+    base = _published_ref()
+    problems = []
+    for served in read_first(pending_changes()):
+        path = "system/" + served.removeprefix("project/")
+        expected = _published_bytes(base, path)
+        live = LIVE / served
+        if expected is None:
+            if live.exists():
+                problems.append(f"{served}: on the artifact but never published from here")
+            continue
+        if not live.exists():
+            problems.append(f"{served}: not read into {LIVE.name}/, or missing from the artifact")
+        elif served == INDEX:
+            if _without_last_change(live.read_bytes()) != _without_last_change(expected):
+                problems.append(f"{served}: differs (beyond lastChange) from the last publish")
+        elif live.read_bytes() != expected:
+            problems.append(f"{served}: differs from the last publish")
+    for line in problems:
+        print(f"FAIL {line}", file=sys.stderr)
+    if problems:
+        print("The artifact was changed outside this repo. Do not publish; tell the user.", file=sys.stderr)
+        return 1
+    print("ok: the artifact matches the last publish")
+    return 0
+
+
 def publish_plan() -> int:
     """Stage what changed since the last publish and print the Artifact call to make."""
     if _git("rev-parse", "--abbrev-ref", "HEAD") != "main":
@@ -610,19 +675,20 @@ def publish_plan() -> int:
         print(json.dumps({"publish": False, "reason": "system/ is unchanged since the last publish"}))
         return 0
 
-    if STAGE.exists():
-        shutil.rmtree(STAGE)
+    for folder in (STAGE, LIVE):
+        if folder.exists():
+            shutil.rmtree(folder)
     head = _git("rev-parse", "--short", "HEAD")
     files: dict[str, str | dict | None] = {}
     uploads = []
     for path, state in sorted(pending.items()):
         rel = path.removeprefix("system/")
-        served = f"project/{rel}"
-        if rel == "design-system.json":
+        served = _served(path)
+        if served == INDEX:
             continue  # always sent below, last
         if state == "deleted":
             files[served] = None
-        elif rel.startswith("assets/") and Path(rel).suffix.lower() in ASSET_SUFFIXES:
+        elif _is_upload(path):
             uploads.append(str(ROOT / path))
         else:
             target = STAGE / served
@@ -661,6 +727,12 @@ def publish_plan() -> int:
             "files": files,
         },
         "uploads_first": uploads,
+        "read_first": {
+            "action": "read",
+            "url": ARTIFACT_URL,
+            "paths": read_first(pending),
+            "out_dir": str(LIVE),
+        },
     }, indent=2, ensure_ascii=False))
     return 0
 
@@ -668,8 +740,9 @@ def publish_plan() -> int:
 def mark_published() -> int:
     """Move the published tag to HEAD, once the Artifact call has succeeded."""
     _git("tag", "-f", PUBLISHED_TAG, "HEAD")
-    if STAGE.exists():
-        shutil.rmtree(STAGE)
+    for folder in (STAGE, LIVE):
+        if folder.exists():
+            shutil.rmtree(folder)
     print(f"{PUBLISHED_TAG} -> {_git('rev-parse', '--short', 'HEAD')}")
     return 0
 
@@ -693,7 +766,8 @@ def hook() -> int:
         message = (
             f"system/ on main has {len(pending)} file(s) not yet published to the WKX artifact. "
             "Publish now, without asking: follow 'Publishing' in CLAUDE.md "
-            "(python3 scripts/wkx.py publish-plan, the Artifact call it prints, then "
+            "(python3 scripts/wkx.py publish-plan, the read it prints, "
+            "python3 scripts/wkx.py verify-live, the publish it prints, then "
             "python3 scripts/wkx.py mark-published)."
         )
         print(json.dumps({"hookSpecificOutput": {"hookEventName": name, "additionalContext": message}}))
@@ -707,6 +781,7 @@ def main(argv: list[str]) -> int:
         "build": build,
         "check": check,
         "publish-plan": publish_plan,
+        "verify-live": verify_live,
         "mark-published": mark_published,
         "hook": hook,
     }
