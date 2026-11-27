@@ -77,19 +77,91 @@
       props.percent != null ? h(Meter, { value: props.percent, threshold: props.threshold, tone: props.tone, label: props.label }) : null);
   }
 
+  /* DataTable sort and filter. A column head cycles ascending, descending, then
+     back to the rows' own order. The filter keeps a row when any cell's text
+     contains it, ignoring case. Both work controlled (sort/onSortChange,
+     filter/onFilterChange) or on their own (defaultSort, defaultFilter). */
+  var BLANK = /^(|—|-|·|…|···)$/;
+  function cellText(r, key) {
+    var v = r[key];
+    return typeof v === "string" || typeof v === "number" ? String(v) : "";
+  }
+  function sortValue(r, key) {
+    var v = r.sorts && r.sorts[key] != null ? r.sorts[key] : cellText(r, key);
+    return String(v).trim();
+  }
+  function sortRows(rows, sort) {
+    if (!sort || !sort.key || !sort.dir) return rows;
+    var key = sort.key, sign = sort.dir === "descending" ? -1 : 1;
+    var values = rows.map(function (r) { return sortValue(r, key); });
+    var numeric = values.some(function (v) { return !BLANK.test(v); }) &&
+      values.every(function (v) { return BLANK.test(v) || !isNaN(parseFloat(v)); });
+    return rows.map(function (r, i) { return { r: r, v: values[i], i: i }; }).sort(function (a, b) {
+      var ba = BLANK.test(a.v), bb = BLANK.test(b.v);
+      if (ba || bb) return ba === bb ? a.i - b.i : (ba ? 1 : -1); /* blanks last, either way */
+      var cmp = numeric ? parseFloat(a.v) - parseFloat(b.v)
+        : a.v.localeCompare(b.v, undefined, { numeric: true, sensitivity: "base" });
+      return cmp * sign || a.i - b.i;
+    }).map(function (x) { return x.r; });
+  }
+  function nextSort(sort, key) {
+    if (!sort || sort.key !== key || !sort.dir) return { key: key, dir: "ascending" };
+    if (sort.dir === "ascending") return { key: key, dir: "descending" };
+    return null;
+  }
+  function useControlled(value, initial, onChange) {
+    var st = React.useState(initial);
+    var controlled = value !== undefined;
+    return [controlled ? value : st[0], function (next) {
+      if (!controlled) st[1](next);
+      if (onChange) onChange(next);
+    }];
+  }
+
   function DataTable(props) {
     var columns = props.columns || [];
     var rows = props.rows || [];
-    return h("div", { className: "wkx-table-wrap" },
-      h("table", { className: cx("wkx-table", props.className) },
-        props.caption ? h("caption", { className: "wkx-label", style: { marginBottom: ".8rem" } }, props.caption) : null,
-        h("thead", null, h("tr", null, columns.map(function (c) { return h("th", { key: c.key, scope: "col" }, c.label); }))),
-        h("tbody", null, rows.map(function (r, i) {
-          return h("tr", { key: r.id != null ? r.id : i }, columns.map(function (c) {
-            var tone = r.tones && r.tones[c.key];
-            return h("td", { key: c.key, className: tone ? "wkx-cell-" + tone : undefined }, r[c.key]);
-          }));
-        }))));
+    var sortState = useControlled(props.sort, props.defaultSort || null, props.onSortChange);
+    var filterState = useControlled(props.filter, props.defaultFilter || "", props.onFilterChange);
+    var sort = sortState[0], filter = filterState[0];
+    var query = props.filterable ? filter.trim().toLowerCase() : "";
+    var shown = query ? rows.filter(function (r) {
+      var text = r.search != null ? String(r.search) : columns.map(function (c) { return cellText(r, c.key); }).join(" ");
+      return text.toLowerCase().indexOf(query) >= 0;
+    }) : rows;
+    shown = props.sortable ? sortRows(shown, sort) : shown;
+
+    var toolbar = props.filterable ? h("div", { className: "wkx-table-tools" },
+      h("span", { className: "wkx-table-count", "aria-live": "polite" }, filter ? shown.length + " of " + rows.length : ""),
+      h("input", {
+        type: "search", className: "wkx-table-filter", placeholder: "filter…",
+        "aria-label": props.filterLabel || "Filter " + (props.caption || "rows"),
+        value: filter, onChange: function (e) { filterState[1](e.target.value); }
+      })) : null;
+
+    function head(c) {
+      var align = c.num ? "wkx-num" : undefined;
+      if (!props.sortable || c.sortable === false) return h("th", { key: c.key, scope: "col", className: align }, c.label);
+      var dir = sort && sort.key === c.key ? sort.dir : null;
+      return h("th", { key: c.key, scope: "col", className: align, "aria-sort": dir || undefined },
+        h("button", {
+          type: "button", className: cx("wkx-sort", dir && "wkx-sort-on"),
+          onClick: function () { sortState[1](nextSort(sort, c.key)); }
+        }, c.label, h("span", { className: "wkx-sort-mark", "aria-hidden": "true" }, dir === "descending" ? "▼" : "▲")));
+    }
+
+    return h("div", { className: cx("wkx-table-block", props.className) },
+      toolbar,
+      h("div", { className: "wkx-table-wrap" },
+        h("table", { className: "wkx-table" },
+          props.caption ? h("caption", { className: "wkx-label", style: { marginBottom: ".8rem" } }, props.caption) : null,
+          h("thead", null, h("tr", null, columns.map(head))),
+          h("tbody", null, shown.length || !query ? shown.map(function (r, i) {
+            return h("tr", { key: r.id != null ? r.id : i }, columns.map(function (c) {
+              var tone = r.tones && r.tones[c.key];
+              return h("td", { key: c.key, className: cx(tone && "wkx-cell-" + tone, c.num && "wkx-num") || undefined }, r[c.key]);
+            }));
+          }) : h("tr", null, h("td", { colSpan: columns.length || 1, className: "wkx-cell-muted" }, "No rows match \u201c" + filter.trim() + "\u201d."))))));
   }
 
   function ListRow(props) {

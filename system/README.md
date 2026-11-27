@@ -42,7 +42,7 @@ WKX is the shared look and feel of every WKX app: a calm console. A deep-navy ni
 - **Panel:** `space-4` padding on top and `space-5` on the sides and bottom. Grid gap `space-6`; between major sections `space-7`.
 - **Inside rows:** `space-1` from label to control, `space-2` for tight pairs, `space-3` between columns.
 - **Grid:** two columns, stacking below `breakpoint-stack` (860px). From `breakpoint-wide` (1500px), half panels share a six-column row; from 2100px, small panels go three-up.
-- **Radii:** `radius-lg` for panels and legends, `radius-md` for controls and wells, `radius-sm` for meters, `radius-xs` for highlighted terms, and `radius-full` only for status lights. A panel with a top rule (`border-rule`) keeps its top corners square.
+- **Radii:** `radius-lg` for panels and legends, `radius-md` for controls and wells, `radius-sm` for meters, `radius-xs` for highlighted terms, `radius-pill` for pill controls (the table filter), and `radius-full` only for status lights. A panel with a top rule (`border-rule`) keeps its top corners square.
 
 ## Page anatomy
 

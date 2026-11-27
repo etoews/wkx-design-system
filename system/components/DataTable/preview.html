@@ -1,4 +1,4 @@
-<!-- @dsCard group="Data" height=210 -->
+<!-- @dsCard group="Data" height=400 -->
 <!doctype html>
 <html lang="en-NZ">
 <head><meta charset="utf-8"><title>preview</title>
@@ -8,14 +8,23 @@
 <div id="root" class="wkx-root"></div>
 <script>
   var W = window.WKX, h = React.createElement;
+  function row(id, time, at, what, ref, result, tone, took, secs) {
+    return { id: id, time: time, what: what, ref: ref, result: result, took: took,
+      sorts: { time: at, took: secs }, tones: { time: 'muted', result: tone, took: 'muted' } };
+  }
   ReactDOM.createRoot(document.getElementById('root')).render(
     h(W.Panel, { label: 'deploys', labelCode: '/acme/*/prod' },
       h(W.DataTable, {
-        columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service' }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'note', label: 'Note' }],
+        sortable: true, filterable: true, filterLabel: 'Filter deploys',
+        defaultSort: { key: 'time', dir: 'descending' },
+        columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service' }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'took', label: 'Took', num: true }],
         rows: [
-          { time: '18 Jul 14:32', what: 'api · prod', ref: 'e7d09b4', result: 'deployed', note: '1 m 48 s', tones: { time: 'muted', result: 'good', note: 'muted' } },
-          { time: '17 Jul 19:08', what: 'api · prod', ref: '9c21f77 → a3f91c2', result: 'rolled back', note: 'git revert', tones: { time: 'muted', result: 'danger', note: 'muted' } },
-          { time: '16 Jul 21:12', what: 'web · prod', ref: '9c21f77', result: 'retried', note: 'second attempt', tones: { time: 'muted', result: 'caution', note: 'muted' } }
+          row(1, '18 Jul 14:32', '07-18 14:32', 'api · prod', 'e7d09b4', 'deployed', 'good', '1 m 48 s', 108),
+          row(2, '17 Jul 19:08', '07-17 19:08', 'api · prod', '9c21f77 → a3f91c2', 'rolled back', 'danger', '42 s', 42),
+          row(3, '16 Jul 21:12', '07-16 21:12', 'web · prod', '9c21f77', 'retried', 'caution', '3 m 05 s', 185),
+          row(4, '16 Jul 09:40', '07-16 09:40', 'edge · prod', '51ab0e2', 'deployed', 'good', '2 m 10 s', 130),
+          row(5, '15 Jul 17:03', '07-15 17:03', 'web · prod', '0f3c9d1', 'deployed', 'good', '2 m 51 s', 171),
+          row(6, '14 Jul 11:26', '07-14 11:26', 'backup · prod', 'c44e8a7', 'deployed', 'good', '—', '—')
         ]
       })));
 </script>
