@@ -77,9 +77,12 @@
       props.percent != null ? h(Meter, { value: props.percent, threshold: props.threshold, tone: props.tone, label: props.label }) : null);
   }
 
-  /* DataTable sort and filter. A column head cycles ascending, descending, then
-     back to the rows' own order. The filter keeps a row when any cell's text
-     contains it, ignoring case. Both work controlled (sort/onSortChange,
+  /* DataTable sort and filter. A click on a column head sorts by it alone,
+     cycling ascending, descending, then back to the rows' own order. A
+     shift-click adds it as the next sort, or cycles it in place: ascending,
+     descending, then out. A later sort only orders rows that tie on every
+     earlier one. The filter keeps a row when any cell's text contains it,
+     ignoring case. Both work controlled (sort/onSortChange,
      filter/onFilterChange) or on their own (defaultSort, defaultFilter). */
   var BLANK = /^(|—|-|·|…|···)$/;
   function cellText(r, key) {
@@ -90,24 +93,49 @@
     var v = r.sorts && r.sorts[key] != null ? r.sorts[key] : cellText(r, key);
     return String(v).trim();
   }
-  function sortRows(rows, sort) {
-    if (!sort || !sort.key || !sort.dir) return rows;
-    var key = sort.key, sign = sort.dir === "descending" ? -1 : 1;
+  /* A sort is a list of {key, dir}, first column first. One {key, dir} or
+     null is read as a list of one or none, so a single sort still works. */
+  function asSorts(sort) {
+    var list = Array.isArray(sort) ? sort : sort ? [sort] : [];
+    return list.filter(function (s, i) {
+      return s && s.key && (s.dir === "ascending" || s.dir === "descending") &&
+        list.findIndex(function (o) { return o && o.key === s.key; }) === i;
+    });
+  }
+  /* A column sorts as numbers when every non-blank value in it is one. */
+  function isNumeric(rows, key) {
     var values = rows.map(function (r) { return sortValue(r, key); });
-    var numeric = values.some(function (v) { return !BLANK.test(v); }) &&
+    return values.some(function (v) { return !BLANK.test(v); }) &&
       values.every(function (v) { return BLANK.test(v) || !isNaN(parseFloat(v)); });
-    return rows.map(function (r, i) { return { r: r, v: values[i], i: i }; }).sort(function (a, b) {
-      var ba = BLANK.test(a.v), bb = BLANK.test(b.v);
-      if (ba || bb) return ba === bb ? a.i - b.i : (ba ? 1 : -1); /* blanks last, either way */
-      var cmp = numeric ? parseFloat(a.v) - parseFloat(b.v)
-        : a.v.localeCompare(b.v, undefined, { numeric: true, sensitivity: "base" });
-      return cmp * sign || a.i - b.i;
+  }
+  function sortRows(rows, sorts, all) {
+    if (!sorts.length) return rows;
+    var numeric = sorts.map(function (s) { return isNumeric(all, s.key); });
+    return rows.map(function (r, i) {
+      return { r: r, i: i, v: sorts.map(function (s) { return sortValue(r, s.key); }) };
+    }).sort(function (a, b) {
+      for (var n = 0; n < sorts.length; n++) {
+        var va = a.v[n], vb = b.v[n], ba = BLANK.test(va), bb = BLANK.test(vb);
+        if (ba || bb) {
+          if (ba !== bb) return ba ? 1 : -1; /* blanks last, either way */
+          continue;
+        }
+        var cmp = numeric[n] ? parseFloat(va) - parseFloat(vb)
+          : va.localeCompare(vb, undefined, { numeric: true, sensitivity: "base" });
+        if (cmp) return sorts[n].dir === "descending" ? -cmp : cmp;
+      }
+      return a.i - b.i;
     }).map(function (x) { return x.r; });
   }
-  function nextSort(sort, key) {
-    if (!sort || sort.key !== key || !sort.dir) return { key: key, dir: "ascending" };
-    if (sort.dir === "ascending") return { key: key, dir: "descending" };
-    return null;
+  function nextSorts(sorts, key, add) {
+    var n = sorts.findIndex(function (s) { return s.key === key; });
+    if (add) {
+      if (n < 0) return sorts.concat([{ key: key, dir: "ascending" }]);
+      if (sorts[n].dir === "ascending") return sorts.map(function (s, i) { return i === n ? { key: key, dir: "descending" } : s; });
+      return sorts.filter(function (s, i) { return i !== n; });
+    }
+    if (sorts.length !== 1 || n !== 0) return [{ key: key, dir: "ascending" }];
+    return sorts[0].dir === "ascending" ? [{ key: key, dir: "descending" }] : [];
   }
   function useControlled(value, initial, onChange) {
     var st = React.useState(initial);
@@ -177,10 +205,10 @@
   function DataTable(props) {
     var all = props.columns || [];
     var rows = props.rows || [];
-    var sortState = useControlled(props.sort, props.defaultSort || null, props.onSortChange);
+    var sortState = useControlled(props.sort, props.defaultSort || [], props.onSortChange);
     var filterState = useControlled(props.filter, props.defaultFilter || "", props.onFilterChange);
     var hiddenState = useControlled(props.hidden, props.defaultHidden || [], props.onHiddenChange);
-    var sort = sortState[0], filter = filterState[0];
+    var sorts = asSorts(sortState[0]), filter = filterState[0];
     var hidden = props.hideable ? hiddenState[0] || [] : [];
     var columns = all.filter(function (c) { return hidden.indexOf(c.key) < 0; });
     var query = props.filterable ? filter.trim().toLowerCase() : "";
@@ -189,7 +217,7 @@
       var text = r.search != null ? String(r.search) : columns.map(function (c) { return cellText(r, c.key); }).join(" ");
       return text.toLowerCase().indexOf(query) >= 0;
     }) : rows;
-    shown = props.sortable ? sortRows(shown, sort) : shown;
+    shown = props.sortable ? sortRows(shown, sorts, rows) : shown;
 
     var tools = props.filterable || props.hideable ? h("div", { className: "wkx-table-tools" },
       props.filterable ? h("span", { className: "wkx-table-count", "aria-live": "polite" }, filter ? shown.length + " of " + rows.length : "") : null,
@@ -204,12 +232,19 @@
     function head(c) {
       var align = c.num ? "wkx-num" : undefined;
       if (!props.sortable || c.sortable === false) return h("th", { key: c.key, scope: "col", className: align, style: top }, c.label);
-      var dir = sort && sort.key === c.key ? sort.dir : null;
-      return h("th", { key: c.key, scope: "col", className: align, style: top, "aria-sort": dir || undefined },
+      var n = sorts.findIndex(function (s) { return s.key === c.key; });
+      var dir = n >= 0 ? sorts[n].dir : null;
+      var rank = n >= 0 && sorts.length > 1 ? h("span", { key: "rank", className: "wkx-sort-rank", "aria-hidden": "true" }, n + 1) : null;
+      var mark = h("span", { key: "mark", className: "wkx-sort-mark", "aria-hidden": "true" }, dir === "descending" ? "▼" : "▲");
+      /* aria-sort belongs on the first sort column only; the label says the rest. */
+      return h("th", { key: c.key, scope: "col", className: align, style: top, "aria-sort": n === 0 ? dir : undefined },
         h("button", {
           type: "button", className: cx("wkx-sort", dir && "wkx-sort-on"),
-          onClick: function () { sortState[1](nextSort(sort, c.key)); }
-        }, c.label, h("span", { className: "wkx-sort-mark", "aria-hidden": "true" }, dir === "descending" ? "▼" : "▲")));
+          title: sorts.length ? "Shift-click for next sort" : undefined,
+          "aria-label": c.label + (dir ? ", sorted " + dir + (sorts.length > 1 ? ", sort " + (n + 1) + " of " + sorts.length : "") : ""),
+          onMouseDown: function (e) { if (e.shiftKey) e.preventDefault(); }, /* no text selection */
+          onClick: function (e) { sortState[1](nextSorts(sorts, c.key, e.shiftKey)); }
+        }, c.label, c.num ? [rank, mark] : [mark, rank]));
     }
 
     return h("div", { className: cx("wkx-table-block", props.className) },

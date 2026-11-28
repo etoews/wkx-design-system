@@ -16,7 +16,7 @@
     h(W.Panel, { label: 'deploys', labelCode: '/acme/*/prod' },
       h(W.DataTable, {
         sortable: true, filterable: true, hideable: true, filterLabel: 'Filter deploys',
-        defaultSort: { key: 'time', dir: 'descending' },
+        defaultSort: [{ key: 'result', dir: 'ascending' }, { key: 'time', dir: 'descending' }],
         columns: [{ key: 'time', label: 'Time' }, { key: 'what', label: 'Service', locked: true }, { key: 'ref', label: 'Ref' }, { key: 'result', label: 'Result' }, { key: 'took', label: 'Took', num: true }],
         rows: [
           row(1, '18 Jul 14:32', '07-18 14:32', 'api · prod', 'e7d09b4', 'deployed', 'good', '1 m 48 s', 108),

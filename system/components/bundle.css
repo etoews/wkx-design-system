@@ -132,6 +132,14 @@
 .wkx-sort-mark { font-size: .8em; letter-spacing: 0; visibility: hidden; }
 .wkx-sort:hover .wkx-sort-mark, .wkx-sort:focus-visible .wkx-sort-mark { visibility: visible; opacity: .45; }
 .wkx-sort-on .wkx-sort-mark, .wkx-sort-on:hover .wkx-sort-mark { visibility: visible; opacity: 1; }
+.wkx-sort { user-select: none; }
+.wkx-sort-rank {
+  display: inline-grid; place-items: center;
+  min-width: 1.35em; height: 1.35em; padding: 0 .2em;
+  border-radius: var(--radius-full); background: var(--ink); color: var(--ground);
+  font-family: var(--font-mono); font-size: .62rem; font-weight: 600; letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
 .wkx-table-tools {
   position: relative; z-index: 2;
   display: flex; justify-content: flex-end; align-items: center; gap: var(--space-2);
